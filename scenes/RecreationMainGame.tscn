@@ -117,6 +117,7 @@ __meta__ = {
 [node name="EarthHolder" type="Node" parent="."]
 
 [node name="Ground" type="Sprite" parent="EarthHolder"]
+modulate = Color( 1, 0.776471, 0, 1 )
 position = Vector2( 0, 205 )
 texture = ExtResource( 6 )
 centered = false

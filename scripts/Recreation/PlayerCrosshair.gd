@@ -7,11 +7,9 @@ extends Sprite
 onready var game = $".."
 var speed = 1
 
-func _ready():
-	hide()
-
 func _process(_delta):
 	if game.gameMode == "Play":
+		show()
 		if Input.is_action_pressed("ui_right"):
 			position.x += speed
 		if Input.is_action_pressed("ui_left"):
@@ -26,5 +24,7 @@ func _process(_delta):
 			position.x = 256
 		if position.y < 0:
 			position.y = 0
-		if position.y > 200:
-			position.y = 200
+		if position.y > 170:
+			position.y = 170
+	else:
+		hide()
