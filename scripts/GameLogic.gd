@@ -8,11 +8,17 @@ var cities = [false,false,false,false,false,false]
 var bases = [0,0,0]
 var missileDict = {}
 var incomMissCount = 0
+var incomingMissileSet = []
+
+const SCREEN_WIDTH = 256
+
 
 onready var playerMissile := preload("res://scenes/PlayerMissile.tscn")
+onready var enemyMissile := preload("res://scenes/EnemyMissile.tscn")
 onready var targetPointer := preload("res://scenes/TargetGraphic.tscn")
 onready var missileTrail := preload("res://scenes/MissileTrail.tscn")
 onready var explosion := preload("res://scenes/Explosion.tscn")
+var levelSet
 
 onready var HUD := $HUDAndTitleScreen
 onready var Player := $PlayerCrosshair
@@ -46,7 +52,7 @@ func doInfoScreen(): #fluff, finish later
 
 func doTrail():
 	for missile in missileDict:
-		missileDict[missile][1].set_point_position(1, missile.global_position)
+		missileDict[missile][0].set_point_position(1, missile.global_position)
 
 func checkForCollision():
 	var mutateDict = missileDict.duplicate(true)
@@ -57,7 +63,8 @@ func checkForCollision():
 			newExplosion.position = missile.global_position
 			mutateDict.erase(missile)
 			missileDict[missile][0].queue_free()
-			missileDict[missile][1].queue_free()
+			if missileDict[missile].size() == 2:
+				missileDict[missile][1].queue_free()
 			missile.queue_free()
 			
 	missileDict = mutateDict.duplicate(true)
@@ -83,7 +90,22 @@ func fire(baseID: int):
 	newMissile.angle = newMissile.get_angle_to(Player.global_position)
 	newMissile.target = Player.global_position
 	newMissile.ready = true
-	missileDict[newMissile] = [newTarget, newTrail]
+	missileDict[newMissile] = [newTrail, newTarget]
+
+func fireEnemy(start_location: Vector2 = Vector2(-1,-1)):
+	var newMissile = enemyMissile.instance()
+	add_child(newMissile)
+	newMissile.global_position = Vector2(rand_range(0.3,0.7)*SCREEN_WIDTH, 0) #make sure that missiles don't go off screen
+	if start_location != Vector2(-1,-1):
+		newMissile.global_position = start_location
+	
+	var newTrail = missileTrail.instance()
+	add_child(newTrail)
+	newTrail.add_point(newMissile.global_position)
+	newTrail.add_point(newMissile.global_position)
+	newMissile.angle = rand_range(269,271) #fix angles
+	newMissile.ready = true
+	missileDict[newMissile] = [newTrail]
 
 func checkForLife() -> bool:
 	return cities[0] or cities[1] or cities[2] or cities[3] or cities[4] or cities[5]
@@ -106,6 +128,8 @@ func doGame():
 			#bases[2] -= 1
 			print("Firing Omega")
 			fire(2)
+	if Input.is_action_just_pressed("debug_fireenemy"):
+		fireEnemy()
 	doTrail()
 	checkForCollision()
 

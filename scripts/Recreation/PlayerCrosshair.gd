@@ -14,17 +14,11 @@ func _process(_delta):
 			position.x += speed
 		if Input.is_action_pressed("ui_left"):
 			position.x -= speed
+		position.x = clamp(position.x, 0, 256)
 		if Input.is_action_pressed("ui_down"):
 			position.y += speed
 		if Input.is_action_pressed("ui_up"):
 			position.y -= speed
-		if position.x < 0:
-			position.x = 0
-		if position.x > 256:
-			position.x = 256
-		if position.y < 0:
-			position.y = 0
-		if position.y > 170:
-			position.y = 170
+		position.y = clamp(position.y, 0, 170)
 	else:
 		hide()
