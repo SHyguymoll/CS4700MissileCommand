@@ -257,3 +257,10 @@ position = Vector2( 10.5, 7 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="EarthHolder/SiloHolder/SiloOmega/Collisions"]
 shape = SubResource( 2 )
+
+[connection signal="area_entered" from="EarthHolder/CityHolder/L3/Collisions" to="." method="L3_collision"]
+[connection signal="area_entered" from="EarthHolder/CityHolder/L2/Collisions" to="." method="L2_collision"]
+[connection signal="area_entered" from="EarthHolder/CityHolder/L1/Collisions" to="." method="L1_collision"]
+[connection signal="area_entered" from="EarthHolder/CityHolder/R1/Collisions" to="." method="R1_collision"]
+[connection signal="area_entered" from="EarthHolder/CityHolder/R2/Collisions" to="." method="R2_collision"]
+[connection signal="area_entered" from="EarthHolder/CityHolder/R3/Collisions" to="." method="R3_collision"]

@@ -1,11 +1,17 @@
 extends Node2D
 
+
+onready var HUD := $HUDAndTitleScreen
+onready var Player := $PlayerCrosshair
+onready var Earth := $EarthHolder
+
 var gameMode = "Menu"
 var level = 0
 var highscoreTable := {}
 var score = 0
-var cities = [false,false,false,false,false,false]
+var cities = {}
 var bases = [0,0,0]
+var targetArray = []
 var missileDict = {}
 var incomMissCount = 0
 var incomingMissileSet = []
@@ -20,9 +26,7 @@ onready var missileTrail := preload("res://scenes/MissileTrail.tscn")
 onready var explosion := preload("res://scenes/Explosion.tscn")
 var levelSet
 
-onready var HUD := $HUDAndTitleScreen
-onready var Player := $PlayerCrosshair
-onready var Earth := $EarthHolder
+
 
 func readHighScoreTable():
 	var table = File.new()
@@ -35,10 +39,7 @@ func readHighScoreTable():
 	else:
 		table.open("user://highscore.csv", File.WRITE)
 		table.store_csv_line(["SOL", "100"])
-		table.seek(0)
-		while table.get_position() != table.get_len():
-			currentline = table.get_csv_line()
-			highscoreTable[currentline[0]] = int(currentline[1])
+		highscoreTable["SOL"] = 100
 	table.close()
 
 func doInfoScreen(): #fluff, finish later
@@ -46,7 +47,7 @@ func doInfoScreen(): #fluff, finish later
 	HUD.get_node("AlphaLabel").show()
 	HUD.get_node("DeltaLabel").show()
 	HUD.get_node("OmegaLabel").show()
-	cities = [true,true,true,true,true,true]
+	cities = {$EarthHolder/CityHolder/L3: true,$EarthHolder/CityHolder/L2: true,$EarthHolder/CityHolder/L1: true,$EarthHolder/CityHolder/R1: true,$EarthHolder/CityHolder/R2: true,$EarthHolder/CityHolder/R3: true}
 	bases = [10,10,10]
 	gameMode = "Play"
 
@@ -77,12 +78,12 @@ func fire(baseID: int):
 	add_child(newMissile)
 	match baseID:
 		0:
-			newMissile.global_position = Vector2(20,207)
+			newMissile.global_position = Vector2(20,206)
 		1:
-			newMissile.global_position = Vector2(124,207)
+			newMissile.global_position = Vector2(124,206)
 			newMissile.fast = true
 		2:
-			newMissile.global_position = Vector2(230,207)
+			newMissile.global_position = Vector2(240,206)
 	var newTrail = missileTrail.instance()
 	add_child(newTrail)
 	newTrail.add_point(newMissile.global_position)
@@ -103,38 +104,58 @@ func fireEnemy(start_location: Vector2 = Vector2(-1,-1)):
 	add_child(newTrail)
 	newTrail.add_point(newMissile.global_position)
 	newTrail.add_point(newMissile.global_position)
-	newMissile.angle = rand_range(269,271) #fix angles
+	newMissile.angle = newMissile.get_angle_to(targetArray[int(rand_range(0,9))] + Vector2(rand_range(0,10-level),rand_range(0,10-level)))
 	newMissile.ready = true
 	missileDict[newMissile] = [newTrail]
 
 func checkForLife() -> bool:
-	return cities[0] or cities[1] or cities[2] or cities[3] or cities[4] or cities[5]
+	return cities.values()[0] or cities.values()[1] or cities.values()[2] or cities.values()[3] or cities.values()[4] or cities.values()[5]
 
 func checkForAmmo() -> bool:
 	return bases[0] > 0 or bases[1] > 0 or bases[2] > 0
+
+func checkHealth() -> void:
+	for city in cities:
+		if !cities[city]:
+			city.hide()
 
 func doGame():
 	$PlayerCrosshair.show()
 	if checkForLife():
 		if Input.is_action_just_pressed("fire_alpha") and bases[0] > 0:
-			#bases[0] -= 1
-			print("Firing Alpha")
+			bases[0] -= 1
+			$EarthHolder/SiloHolder/SiloAlpha.frame = 10 - bases[0]
+			if bases[0] < 4:
+				$HUDAndTitleScreen/AlphaLabel.text = "LOW"
+			if bases[0] == 0:
+				$HUDAndTitleScreen/AlphaLabel.text = "OUT"
 			fire(0)
 		if Input.is_action_just_pressed("fire_delta") and bases[1] > 0:
-			#bases[1] -= 1
-			print("Firing Delta")
+			bases[1] -= 1
+			$EarthHolder/SiloHolder/SiloDelta.frame = 10 - bases[1]
+			if bases[1] < 4:
+				$HUDAndTitleScreen/DeltaLabel.text = "LOW"
+			if bases[1] == 0:
+				$HUDAndTitleScreen/DeltaLabel.text = "OUT"
 			fire(1)
 		if Input.is_action_just_pressed("fire_omega") and bases[2] > 0:
-			#bases[2] -= 1
-			print("Firing Omega")
+			bases[2] -= 1
+			$EarthHolder/SiloHolder/SiloOmega.frame = 10 - bases[2]
+			if bases[2] < 4:
+				$HUDAndTitleScreen/DeltaLabel.text = "LOW"
+			if bases[2] == 0:
+				$HUDAndTitleScreen/DeltaLabel.text = "OUT"
 			fire(2)
 	if Input.is_action_just_pressed("debug_fireenemy"):
 		fireEnemy()
 	doTrail()
 	checkForCollision()
+	checkHealth()
 
 func _ready():
 	readHighScoreTable()
+	targetArray = [$EarthHolder/CityHolder/L1.position,$EarthHolder/CityHolder/L2.position,$EarthHolder/CityHolder/L3.position,$EarthHolder/CityHolder/R1.position,$EarthHolder/CityHolder/R2.position,$EarthHolder/CityHolder/R3.position,$EarthHolder/SiloHolder/SiloAlpha.position,$EarthHolder/SiloHolder/SiloDelta.position,$EarthHolder/SiloHolder/SiloOmega.position]
+	cities = {$EarthHolder/CityHolder/L3: false,$EarthHolder/CityHolder/L2: false,$EarthHolder/CityHolder/L1: false,$EarthHolder/CityHolder/R1: false,$EarthHolder/CityHolder/R2: false,$EarthHolder/CityHolder/R3: false}
 	HUD.get_node("HighScore").text = String(highscoreTable[highscoreTable.keys()[0]])
 	HUD.get_node("PlayerScore").text = String(score)
 	HUD.get_node("AlphaLabel").text = ""
@@ -145,8 +166,6 @@ func _ready():
 	HUD.get_node("DeltaLabel").hide()
 	HUD.get_node("OmegaLabel").hide()
 
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
 	if gameMode == "Menu":
 		if Input.is_action_pressed("start"):
@@ -155,3 +174,27 @@ func _process(_delta):
 		doInfoScreen()
 	if gameMode == "Play":
 		doGame()
+
+
+func L3_collision(area):
+	cities[$EarthHolder/CityHolder/L3] = false
+
+
+func L2_collision(area):
+	cities[$EarthHolder/CityHolder/L2] = false
+
+
+func L1_collision(area):
+	cities[$EarthHolder/CityHolder/L1] = false
+
+
+func R1_collision(area):
+	cities[$EarthHolder/CityHolder/R1] = false
+
+
+func R2_collision(area):
+	cities[$EarthHolder/CityHolder/R2] = false
+
+
+func R3_collision(area):
+	cities[$EarthHolder/CityHolder/R3] = false

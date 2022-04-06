@@ -1,6 +1,6 @@
 extends Sprite
 
-var speed = 0.1
+var speed = 1
 var ready = false
 var angle = 0
 var ready_to_boom = false
