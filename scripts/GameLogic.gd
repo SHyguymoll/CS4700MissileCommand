@@ -93,13 +93,13 @@ func checkBomberState():
 			bomber.deploy_timer = -1
 	bomberDict = newBomberDict.duplicate()
 
-#func checkExplosionState():
-#	var newExplosionDict = explosionDict.duplicate(true)
-#	for explosion in explosionDict:
-#		if explosion.finished:
-#			newExplosionDict.erase(explosion)
-#			explosion.queue_free()
-#	explosionDict = explosionDict.duplicate(true)
+func checkExplosionState():
+	var newExplosionDict = explosionDict.duplicate(true)
+	for explosion in explosionDict:
+		if explosion.finished:
+			newExplosionDict.erase(explosion)
+			explosion.queue_free()
+	explosionDict = newExplosionDict.duplicate(true)
 
 func fire(baseID: int):
 	var newTarget = targetPointer.instance()
@@ -156,9 +156,9 @@ func fireBomber(speed: float = 0.3, fire_timer: int = 66, facing: int = 1):
 	newBomber.facing = facing
 	match facing:
 		-1:
-			newBomber.global_position = Vector2(SCREEN_WIDTH, 100)
+			newBomber.global_position = Vector2(SCREEN_WIDTH, int(rand_range(90,110)))
 		1:
-			newBomber.global_position = Vector2(0, 100)
+			newBomber.global_position = Vector2(0, int(rand_range(90,110)))
 	bomberDict[newBomber] = newBomber.position
 	newBomber.ready = true
 
@@ -199,13 +199,13 @@ func doGame():
 	if Input.is_action_just_pressed("debug_fireenemy"):
 		fireEnemy()
 	if Input.is_action_just_pressed("debug_firesplit"):
-		fireEnemy(Vector2(-1,-1),100)
+		fireEnemy(Vector2(-1,-1),200)
 	if Input.is_action_just_pressed("debug_firebomber"):
-		fireBomber(0.3, 50)
+		fireBomber(0.3, 100)
 	doTrail()
 	checkMissileState()
 	checkBomberState()
-	#checkExplosionState()
+	checkExplosionState()
 
 func _ready():
 	readHighScoreTable()
