@@ -3,30 +3,33 @@ extends Node2D
 
 onready var HUD := $HUDAndTitleScreen
 onready var Player := $PlayerCrosshair
-onready var Earth := $EarthHolder
+onready var Cities := $EarthHolder/CityHolder
+onready var Silos := $EarthHolder/SiloHolder
 
 var gameMode = "Menu"
 var level = 0
 var highscoreTable := {}
 var score = 0
-var cities = {}
-var bases = [0,0,0]
 var targetArray = []
 var missileDict = {}
+var explosionDict = {}
+var bomberDict = {}
 var incomMissCount = 0
 var incomingMissileSet = []
+var internal_clock = 100
+var stored_cities = 0
+
 
 const SCREEN_WIDTH = 256
-
+const SPLIT_DIFFERENCE = 0.3
 
 onready var playerMissile := preload("res://scenes/PlayerMissile.tscn")
 onready var enemyMissile := preload("res://scenes/EnemyMissile.tscn")
+onready var enemyBomber := preload("res://scenes/Bomber.tscn")
 onready var targetPointer := preload("res://scenes/TargetGraphic.tscn")
 onready var missileTrail := preload("res://scenes/MissileTrail.tscn")
-onready var explosion := preload("res://scenes/Explosion.tscn")
+onready var explosionScene := preload("res://scenes/Explosion.tscn")
 var levelSet
-
-
 
 func readHighScoreTable():
 	var table = File.new()
@@ -47,28 +50,56 @@ func doInfoScreen(): #fluff, finish later
 	HUD.get_node("AlphaLabel").show()
 	HUD.get_node("DeltaLabel").show()
 	HUD.get_node("OmegaLabel").show()
-	cities = {$EarthHolder/CityHolder/L3: true,$EarthHolder/CityHolder/L2: true,$EarthHolder/CityHolder/L1: true,$EarthHolder/CityHolder/R1: true,$EarthHolder/CityHolder/R2: true,$EarthHolder/CityHolder/R3: true}
-	bases = [10,10,10]
+	Silos.ammo = [10,10,10]
+	
 	gameMode = "Play"
 
 func doTrail():
 	for missile in missileDict:
 		missileDict[missile][0].set_point_position(1, missile.global_position)
 
-func checkForCollision():
-	var mutateDict = missileDict.duplicate(true)
+func checkMissileState():
+	var newMissileDict = missileDict.duplicate(true)
 	for missile in missileDict:
-		if missile.ready_to_boom:
-			var newExplosion = explosion.instance()
-			add_child(newExplosion)
-			newExplosion.position = missile.global_position
-			mutateDict.erase(missile)
+		if missile.ready_to_boom or missile.clear_me:
+			if missile.ready_to_boom:
+				var newExplosion = explosionScene.instance()
+				add_child(newExplosion)
+				newExplosion.position = missile.global_position
+				explosionDict[newExplosion] = newExplosion.position
+			newMissileDict.erase(missile)
 			missileDict[missile][0].queue_free()
-			if missileDict[missile].size() == 2:
+			if missileDict[missile].size() == 2 and typeof(missileDict[missile][1]) != TYPE_INT:
 				missileDict[missile][1].queue_free()
 			missile.queue_free()
-			
-	missileDict = mutateDict.duplicate(true)
+		if missile.split_timer == 0:
+			fireEnemy(missile.position, -1, newMissileDict)
+			fireEnemy(missile.position, -1, newMissileDict)
+	missileDict = newMissileDict.duplicate(true)
+
+func checkBomberState():
+	var newBomberDict = bomberDict.duplicate()
+	for bomber in bomberDict:
+		if bomber.ready_to_boom or bomber.clear_me:
+			if bomber.ready_to_boom:
+				var newExplosion = explosionScene.instance()
+				add_child(newExplosion)
+				newExplosion.position = bomber.global_position
+				explosionDict[newExplosion] = newExplosion.position
+			newBomberDict.erase(bomber)
+			bomber.queue_free()
+		if bomber.deploy_timer == 0:
+			fireEnemy(bomber.position, -1, missileDict)
+			bomber.deploy_timer = -1
+	bomberDict = newBomberDict.duplicate()
+
+#func checkExplosionState():
+#	var newExplosionDict = explosionDict.duplicate(true)
+#	for explosion in explosionDict:
+#		if explosion.finished:
+#			newExplosionDict.erase(explosion)
+#			explosion.queue_free()
+#	explosionDict = explosionDict.duplicate(true)
 
 func fire(baseID: int):
 	var newTarget = targetPointer.instance()
@@ -86,6 +117,7 @@ func fire(baseID: int):
 			newMissile.global_position = Vector2(240,206)
 	var newTrail = missileTrail.instance()
 	add_child(newTrail)
+	newTrail.default_color = Color("df0022ff")
 	newTrail.add_point(newMissile.global_position)
 	newTrail.add_point(newMissile.global_position)
 	newMissile.angle = newMissile.get_angle_to(Player.global_position)
@@ -93,69 +125,101 @@ func fire(baseID: int):
 	newMissile.ready = true
 	missileDict[newMissile] = [newTrail, newTarget]
 
-func fireEnemy(start_location: Vector2 = Vector2(-1,-1)):
+func pickRandomTarget():
+	var target_picked = targetArray[int(rand_range(0,9))]
+	return Vector2(target_picked.x + rand_range(-10+level,10-level), target_picked.y)
+
+func fireEnemy(start_location: Vector2 = Vector2(-1,-1), split: int = -1, dictionary: Dictionary = missileDict, speed: float = 0.3):
 	var newMissile = enemyMissile.instance()
 	add_child(newMissile)
-	newMissile.global_position = Vector2(rand_range(0.3,0.7)*SCREEN_WIDTH, 0) #make sure that missiles don't go off screen
+	newMissile.global_position = Vector2(rand_range(0,1)*SCREEN_WIDTH, 0)
+	newMissile.split_timer = split
+	newMissile.speed = speed
+	newMissile.angle = newMissile.get_angle_to(pickRandomTarget())
 	if start_location != Vector2(-1,-1):
 		newMissile.global_position = start_location
-	
+		newMissile.angle += rand_range(-SPLIT_DIFFERENCE, SPLIT_DIFFERENCE)
 	var newTrail = missileTrail.instance()
 	add_child(newTrail)
+	newTrail.default_color = Color("dfff0000")
 	newTrail.add_point(newMissile.global_position)
 	newTrail.add_point(newMissile.global_position)
-	newMissile.angle = newMissile.get_angle_to(targetArray[int(rand_range(0,9))] + Vector2(rand_range(0,10-level),rand_range(0,10-level)))
+	
 	newMissile.ready = true
-	missileDict[newMissile] = [newTrail]
+	dictionary[newMissile] = [newTrail, split]
+
+func fireBomber(speed: float = 0.3, fire_timer: int = 66, facing: int = 1):
+	var newBomber = enemyBomber.instance()
+	add_child(newBomber)
+	newBomber.speed = speed
+	newBomber.deploy_timer = fire_timer
+	newBomber.facing = facing
+	match facing:
+		-1:
+			newBomber.global_position = Vector2(SCREEN_WIDTH, 100)
+		1:
+			newBomber.global_position = Vector2(0, 100)
+	bomberDict[newBomber] = newBomber.position
+	newBomber.ready = true
 
 func checkForLife() -> bool:
-	return cities.values()[0] or cities.values()[1] or cities.values()[2] or cities.values()[3] or cities.values()[4] or cities.values()[5]
+	return Cities.cities[0] or Cities.cities[1] or Cities.cities[2] or Cities.cities[3] or Cities.cities[4] or Cities.cities[5]
 
 func checkForAmmo() -> bool:
-	return bases[0] > 0 or bases[1] > 0 or bases[2] > 0
-
-func checkHealth() -> void:
-	for city in cities:
-		if !cities[city]:
-			city.hide()
+	return Silos.ammo[0] > 0 or Silos.ammo[1] > 0 or Silos.ammo[2] > 0
 
 func doGame():
-	$PlayerCrosshair.show()
+	Player.show()
+	HUD.get_node("DefendText").hide()
 	if checkForLife():
-		if Input.is_action_just_pressed("fire_alpha") and bases[0] > 0:
-			bases[0] -= 1
-			$EarthHolder/SiloHolder/SiloAlpha.frame = 10 - bases[0]
-			if bases[0] < 4:
-				$HUDAndTitleScreen/AlphaLabel.text = "LOW"
-			if bases[0] == 0:
-				$HUDAndTitleScreen/AlphaLabel.text = "OUT"
+		if Input.is_action_just_pressed("fire_alpha") and Silos.ammo[0] > 0:
+			Silos.ammo[0] -= 1
+			Silos.get_node("SiloAlpha").frame = 10 - Silos.ammo[0]
+			if Silos.ammo[0] < 4:
+				HUD.get_node("AlphaLabel").text = "LOW"
+			if Silos.ammo[0] == 0:
+				HUD.get_node("AlphaLabel").text = "OUT"
 			fire(0)
-		if Input.is_action_just_pressed("fire_delta") and bases[1] > 0:
-			bases[1] -= 1
-			$EarthHolder/SiloHolder/SiloDelta.frame = 10 - bases[1]
-			if bases[1] < 4:
-				$HUDAndTitleScreen/DeltaLabel.text = "LOW"
-			if bases[1] == 0:
-				$HUDAndTitleScreen/DeltaLabel.text = "OUT"
+		if Input.is_action_just_pressed("fire_delta") and Silos.ammo[1] > 0:
+			Silos.ammo[1] -= 1
+			Silos.get_node("SiloDelta").frame = 10 - Silos.ammo[1]
+			if Silos.ammo[1] < 4:
+				HUD.get_node("DeltaLabel").text = "LOW"
+			if Silos.ammo[1] == 0:
+				HUD.get_node("DeltaLabel").text = "OUT"
 			fire(1)
-		if Input.is_action_just_pressed("fire_omega") and bases[2] > 0:
-			bases[2] -= 1
-			$EarthHolder/SiloHolder/SiloOmega.frame = 10 - bases[2]
-			if bases[2] < 4:
-				$HUDAndTitleScreen/DeltaLabel.text = "LOW"
-			if bases[2] == 0:
-				$HUDAndTitleScreen/DeltaLabel.text = "OUT"
+		if Input.is_action_just_pressed("fire_omega") and Silos.ammo[2] > 0:
+			Silos.ammo[2] -= 1
+			Silos.get_node("SiloOmega").frame = 10 - Silos.ammo[2]
+			if Silos.ammo[2] < 4:
+				HUD.get_node("OmegaLabel").text = "LOW"
+			if Silos.ammo[2] == 0:
+				HUD.get_node("OmegaLabel").text = "OUT"
 			fire(2)
 	if Input.is_action_just_pressed("debug_fireenemy"):
 		fireEnemy()
+	if Input.is_action_just_pressed("debug_firesplit"):
+		fireEnemy(Vector2(-1,-1),100)
+	if Input.is_action_just_pressed("debug_firebomber"):
+		fireBomber(0.3, 50)
 	doTrail()
-	checkForCollision()
-	checkHealth()
+	checkMissileState()
+	checkBomberState()
+	#checkExplosionState()
 
 func _ready():
 	readHighScoreTable()
-	targetArray = [$EarthHolder/CityHolder/L1.position,$EarthHolder/CityHolder/L2.position,$EarthHolder/CityHolder/L3.position,$EarthHolder/CityHolder/R1.position,$EarthHolder/CityHolder/R2.position,$EarthHolder/CityHolder/R3.position,$EarthHolder/SiloHolder/SiloAlpha.position,$EarthHolder/SiloHolder/SiloDelta.position,$EarthHolder/SiloHolder/SiloOmega.position]
-	cities = {$EarthHolder/CityHolder/L3: false,$EarthHolder/CityHolder/L2: false,$EarthHolder/CityHolder/L1: false,$EarthHolder/CityHolder/R1: false,$EarthHolder/CityHolder/R2: false,$EarthHolder/CityHolder/R3: false}
+	targetArray = [
+		Cities.get_node("L1").global_position,
+		Cities.get_node("L1").global_position,
+		Cities.get_node("L1").global_position,
+		Cities.get_node("L1").global_position,
+		Cities.get_node("L1").global_position,
+		Cities.get_node("L1").global_position,
+		Silos.get_node("SiloAlpha").global_position,
+		Silos.get_node("SiloDelta").global_position,
+		Silos.get_node("SiloOmega").global_position
+	]
 	HUD.get_node("HighScore").text = String(highscoreTable[highscoreTable.keys()[0]])
 	HUD.get_node("PlayerScore").text = String(score)
 	HUD.get_node("AlphaLabel").text = ""
@@ -175,26 +239,16 @@ func _process(_delta):
 	if gameMode == "Play":
 		doGame()
 
-
-func L3_collision(area):
-	cities[$EarthHolder/CityHolder/L3] = false
-
-
-func L2_collision(area):
-	cities[$EarthHolder/CityHolder/L2] = false
+func Report_Omega(_area):
+	HUD.get_node("OmegaLabel").text = "OUT"
+	Silos.get_node("SiloOmega").frame = 10
 
 
-func L1_collision(area):
-	cities[$EarthHolder/CityHolder/L1] = false
+func Report_Delta(_area):
+	HUD.get_node("DeltaLabel").text = "OUT"
+	Silos.get_node("SiloDelta").frame = 10
 
 
-func R1_collision(area):
-	cities[$EarthHolder/CityHolder/R1] = false
-
-
-func R2_collision(area):
-	cities[$EarthHolder/CityHolder/R2] = false
-
-
-func R3_collision(area):
-	cities[$EarthHolder/CityHolder/R3] = false
+func Report_Alpha(_area):
+	HUD.get_node("AlphaLabel").text = "OUT"
+	Silos.get_node("SiloAlpha").frame = 10

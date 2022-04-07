@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=2]
+[gd_scene load_steps=13 format=2]
 
 [ext_resource path="res://scripts/GameLogic.gd" type="Script" id=1]
 [ext_resource path="res://fonts/Font.tres" type="DynamicFont" id=2]
@@ -8,6 +8,8 @@
 [ext_resource path="res://art/ground.png" type="Texture" id=6]
 [ext_resource path="res://art/missilearrangement.png" type="Texture" id=7]
 [ext_resource path="res://art/background.png" type="Texture" id=8]
+[ext_resource path="res://scripts/Recreation/CityHolder.gd" type="Script" id=9]
+[ext_resource path="res://scripts/Recreation/SiloHolder.gd" type="Script" id=10]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 8, 4 )
@@ -26,6 +28,7 @@ anchor_right = 0.5
 margin_left = -56.0
 margin_right = 56.0
 margin_bottom = 14.0
+custom_colors/font_color = Color( 1, 0, 0, 1 )
 custom_fonts/font = ExtResource( 2 )
 text = "HIGHSCORE"
 align = 1
@@ -36,6 +39,7 @@ __meta__ = {
 [node name="PlayerScore" type="Label" parent="HUDAndTitleScreen"]
 margin_right = 112.0
 margin_bottom = 14.0
+custom_colors/font_color = Color( 1, 0, 0, 1 )
 custom_fonts/font = ExtResource( 2 )
 text = "YOUSCORE"
 align = 1
@@ -43,26 +47,44 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="AlphaLabel" type="Label" parent="HUDAndTitleScreen"]
-anchor_top = 1.0
-anchor_bottom = 1.0
-margin_top = -9.0
-margin_right = 40.0
+[node name="DefendText" type="Label" parent="HUDAndTitleScreen"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -128.0
+margin_top = 64.5
+margin_right = 128.0
+margin_bottom = 72.5
+custom_colors/font_color = Color( 0, 0.109804, 1, 1 )
 custom_fonts/font = ExtResource( 2 )
-text = "LOUT"
+text = "DEFEND       CITIES"
 align = 1
 __meta__ = {
 "_edit_lock_": true
 }
 
 [node name="CoinLabel" type="Label" parent="HUDAndTitleScreen"]
-visible = false
+anchor_left = 0.5
 anchor_top = 1.0
+anchor_right = 0.5
 anchor_bottom = 1.0
-margin_top = -14.0
-margin_right = 40.0
+margin_left = -120.0
+margin_top = -8.0
+margin_right = 120.0
+custom_colors/font_color = Color( 0, 0, 0, 1 )
 custom_fonts/font = ExtResource( 2 )
 text = "1 COIN 1 PLAY       ATARI 1980"
+
+[node name="AlphaLabel" type="Label" parent="HUDAndTitleScreen"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_top = -9.0
+margin_right = 40.0
+custom_colors/font_color = Color( 0, 0.109804, 1, 1 )
+custom_fonts/font = ExtResource( 2 )
+text = "LOUT"
+align = 1
 __meta__ = {
 "_edit_lock_": true
 }
@@ -74,6 +96,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = -40.0
 margin_top = -9.0
+custom_colors/font_color = Color( 0, 0.109804, 1, 1 )
 custom_fonts/font = ExtResource( 2 )
 text = "LOUT"
 align = 1
@@ -89,6 +112,7 @@ anchor_bottom = 1.0
 margin_left = -20.0
 margin_top = -9.0
 margin_right = 20.0
+custom_colors/font_color = Color( 0, 0.109804, 1, 1 )
 custom_fonts/font = ExtResource( 2 )
 text = "LOUT"
 align = 1
@@ -125,7 +149,15 @@ __meta__ = {
 "_edit_lock_": true
 }
 
+[node name="Area2D" type="Area2D" parent="EarthHolder/Ground"]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="EarthHolder/Ground/Area2D"]
+polygon = PoolVector2Array( 155, 10, 168, 10, 168, 9, 170, 9, 170, 8, 171, 8, 171, 7, 173, 7, 173, 8, 187, 8, 187, 7, 189, 7, 189, 8, 190, 8, 190, 10, 193, 10, 193, 11, 201, 11, 201, 12, 215, 12, 215, 11, 222, 11, 222, 10, 223, 10, 223, 9, 225, 9, 225, 8, 226, 8, 226, 7, 227, 7, 227, 6, 228, 6, 228, 5, 229, 5, 229, 4, 230, 4, 230, 2, 231, 2, 231, 1, 233, 1, 233, 0, 235, 0, 235, 2, 249, 2, 249, 1, 250, 1, 250, 0, 252, 0, 252, 1, 253, 1, 253, 2, 254, 2, 254, 3, 255, 3, 255, 8, 256, 8, 256, 26, 0, 26, 0, 10, 1, 10, 1, 9, 3, 9, 3, 8, 4, 8, 4, 7, 5, 7, 5, 6, 6, 6, 6, 5, 8, 5, 8, 4, 9, 4, 9, 3, 10, 3, 10, 2, 11, 2, 11, 1, 12, 1, 12, 0, 14, 0, 14, 1, 15, 1, 15, 2, 28, 2, 28, 1, 29, 1, 29, 0, 31, 0, 31, 1, 32, 1, 32, 2, 33, 2, 33, 3, 34, 3, 34, 4, 35, 4, 35, 5, 36, 5, 36, 7, 37, 7, 37, 11, 51, 11, 51, 10, 52, 10, 52, 9, 55, 9, 55, 8, 56, 8, 56, 7, 58, 7, 58, 8, 59, 8, 59, 9, 60, 9, 60, 10, 61, 10, 61, 11, 64, 11, 64, 12, 78, 12, 78, 11, 79, 11, 79, 10, 88, 10, 88, 13, 102, 13, 102, 12, 103, 12, 103, 10, 107, 10, 107, 9, 111, 9, 111, 8, 112, 8, 112, 7, 113, 7, 113, 6, 114, 6, 114, 5, 115, 5, 115, 3, 116, 3, 116, 2, 117, 2, 117, 0, 119, 0, 119, 1, 120, 1, 120, 2, 128, 2, 128, 1, 129, 1, 129, 0, 131, 0, 131, 1, 132, 1, 132, 2, 133, 2, 133, 4, 134, 4, 134, 6, 135, 6, 135, 7, 136, 7, 136, 9, 140, 9, 140, 10, 141, 10, 141, 11, 155, 11 )
+
 [node name="CityHolder" type="Node" parent="EarthHolder"]
+script = ExtResource( 9 )
 
 [node name="L3" type="Sprite" parent="EarthHolder/CityHolder"]
 position = Vector2( 36, 208 )
@@ -212,6 +244,7 @@ position = Vector2( 8, 4 )
 shape = SubResource( 1 )
 
 [node name="SiloHolder" type="Node" parent="EarthHolder"]
+script = ExtResource( 10 )
 
 [node name="SiloAlpha" type="Sprite" parent="EarthHolder/SiloHolder"]
 position = Vector2( 10, 206 )
@@ -258,9 +291,15 @@ position = Vector2( 10.5, 7 )
 [node name="CollisionShape2D" type="CollisionShape2D" parent="EarthHolder/SiloHolder/SiloOmega/Collisions"]
 shape = SubResource( 2 )
 
-[connection signal="area_entered" from="EarthHolder/CityHolder/L3/Collisions" to="." method="L3_collision"]
-[connection signal="area_entered" from="EarthHolder/CityHolder/L2/Collisions" to="." method="L2_collision"]
-[connection signal="area_entered" from="EarthHolder/CityHolder/L1/Collisions" to="." method="L1_collision"]
-[connection signal="area_entered" from="EarthHolder/CityHolder/R1/Collisions" to="." method="R1_collision"]
-[connection signal="area_entered" from="EarthHolder/CityHolder/R2/Collisions" to="." method="R2_collision"]
-[connection signal="area_entered" from="EarthHolder/CityHolder/R3/Collisions" to="." method="R3_collision"]
+[connection signal="area_entered" from="EarthHolder/CityHolder/L3/Collisions" to="EarthHolder/CityHolder" method="L3_breached"]
+[connection signal="area_entered" from="EarthHolder/CityHolder/L2/Collisions" to="EarthHolder/CityHolder" method="L2_breached"]
+[connection signal="area_entered" from="EarthHolder/CityHolder/L1/Collisions" to="EarthHolder/CityHolder" method="L1_breached"]
+[connection signal="area_entered" from="EarthHolder/CityHolder/R1/Collisions" to="EarthHolder/CityHolder" method="R1_breached"]
+[connection signal="area_entered" from="EarthHolder/CityHolder/R2/Collisions" to="EarthHolder/CityHolder" method="R2_breached"]
+[connection signal="area_entered" from="EarthHolder/CityHolder/R3/Collisions" to="EarthHolder/CityHolder" method="R3_breached"]
+[connection signal="area_entered" from="EarthHolder/SiloHolder/SiloAlpha/Collisions" to="." method="Report_Alpha"]
+[connection signal="area_entered" from="EarthHolder/SiloHolder/SiloAlpha/Collisions" to="EarthHolder/SiloHolder" method="Alpha_breached"]
+[connection signal="area_entered" from="EarthHolder/SiloHolder/SiloDelta/Collisions" to="." method="Report_Delta"]
+[connection signal="area_entered" from="EarthHolder/SiloHolder/SiloDelta/Collisions" to="EarthHolder/SiloHolder" method="Delta_breached"]
+[connection signal="area_entered" from="EarthHolder/SiloHolder/SiloOmega/Collisions" to="." method="Report_Omega"]
+[connection signal="area_entered" from="EarthHolder/SiloHolder/SiloOmega/Collisions" to="EarthHolder/SiloHolder" method="Omega_breached"]
