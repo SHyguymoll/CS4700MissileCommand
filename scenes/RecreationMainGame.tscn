@@ -13,10 +13,10 @@
 [ext_resource path="res://scripts/Recreation/TimerBasedScripts.gd" type="Script" id=11]
 
 [sub_resource type="RectangleShape2D" id=1]
-extents = Vector2( 8, 4 )
+extents = Vector2( 6, 1 )
 
 [sub_resource type="RectangleShape2D" id=2]
-extents = Vector2( 10.5, 7 )
+extents = Vector2( 6, 4 )
 
 [node name="Spatial" type="Node2D"]
 script = ExtResource( 1 )

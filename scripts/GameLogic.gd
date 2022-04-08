@@ -13,6 +13,7 @@ var highscoreTable := {}
 var score = 0
 var targetArray = []
 var missileDict = {}
+var smartBombDict = {}
 var explosionDict = {}
 var bomberDict = {}
 var incomMissCount = 0
@@ -26,6 +27,7 @@ const SPLIT_DIFFERENCE = 0.3
 
 onready var playerMissile := preload("res://scenes/PlayerMissile.tscn")
 onready var enemyMissile := preload("res://scenes/EnemyMissile.tscn")
+onready var smartBomb := preload("res://scenes/SmartBomb.tscn")
 onready var enemyBomber := preload("res://scenes/Bomber.tscn")
 onready var targetPointer := preload("res://scenes/TargetGraphic.tscn")
 onready var missileTrail := preload("res://scenes/MissileTrail.tscn")
@@ -77,6 +79,22 @@ func checkMissileState():
 			fireEnemy(missile.position, -1, newMissileDict)
 			fireEnemy(missile.position, -1, newMissileDict)
 	missileDict = newMissileDict.duplicate(true)
+
+func checkSmartBombState():
+	var newSmartBombDict = smartBombDict.duplicate()
+	for bomb in smartBombDict:
+		if bomb.ready_to_boom or bomb.clear_me:
+			if bomb.ready_to_boom:
+				var newExplosion = explosionScene.instance()
+				add_child(newExplosion)
+				newExplosion.position = bomb.global_position
+				explosionDict[newExplosion] = newExplosion.position
+			newSmartBombDict.erase(bomb)
+			bomb.queue_free()
+		else:
+			bomb.explosionPositions = explosionDict
+			newSmartBombDict[bomb] = bomb.position
+	smartBombDict = newSmartBombDict.duplicate()
 
 func checkBomberState():
 	var newBomberDict = bomberDict.duplicate()
@@ -152,6 +170,15 @@ func fireEnemy(start_location: Vector2 = Vector2(-1,-1), split: int = -1, dictio
 	newMissile.ready = true
 	dictionary[newMissile] = [newTrail, split]
 
+func fireSmartBomb(speed: float = 0.3):
+	var newBomb = smartBomb.instance()
+	add_child(newBomb)
+	newBomb.global_position = Vector2(rand_range(0,1)*SCREEN_WIDTH, 0)
+	newBomb.speed = speed
+	newBomb.target = pickRandomTarget()
+	newBomb.ready = true
+	smartBombDict[newBomb] = newBomb.position
+
 func fireBomber(speed: float = 0.3, fire_timer: int = 66, facing: int = 1, type: int = 1):
 	var newBomber = enemyBomber.instance()
 	add_child(newBomber)
@@ -205,10 +232,13 @@ func doGame():
 		fireEnemy()
 	if Input.is_action_just_pressed("debug_firesplit"):
 		fireEnemy(Vector2(-1,-1),200)
+	if Input.is_action_just_pressed("debug_firebomb"):
+		fireSmartBomb()
 	if Input.is_action_just_pressed("debug_firebomber"):
 		fireBomber(0.5, 1000,1 if rand_range(0,1) > 0.5 else -1, 1 if rand_range(0,1) > 0.5 else 0)
 	doTrail()
 	checkMissileState()
+	checkSmartBombState()
 	checkBomberState()
 	if !checkExplosionState():
 		doResultsScreen()
