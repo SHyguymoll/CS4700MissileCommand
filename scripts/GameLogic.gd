@@ -5,6 +5,7 @@ onready var HUD := $HUDAndTitleScreen
 onready var Player := $PlayerCrosshair
 onready var Cities := $EarthHolder/CityHolder
 onready var Silos := $EarthHolder/SiloHolder
+onready var TimedVars := $GeneralTimer
 
 var gameMode = "Menu"
 var level = 0
@@ -41,8 +42,8 @@ func readHighScoreTable():
 			highscoreTable[currentline[0]] = int(currentline[1])
 	else:
 		table.open("user://highscore.csv", File.WRITE)
-		table.store_csv_line(["SOL", "100"])
-		highscoreTable["SOL"] = 100
+		table.store_csv_line(["SOL", "7500"])
+		highscoreTable["SOL"] = 7500
 	table.close()
 
 func doInfoScreen(): #fluff, finish later
@@ -93,13 +94,16 @@ func checkBomberState():
 			bomber.deploy_timer = -1
 	bomberDict = newBomberDict.duplicate()
 
-func checkExplosionState():
+func checkExplosionState() -> bool:
 	var newExplosionDict = explosionDict.duplicate(true)
 	for explosion in explosionDict:
 		if explosion.finished:
 			newExplosionDict.erase(explosion)
 			explosion.queue_free()
 	explosionDict = newExplosionDict.duplicate(true)
+	if explosionDict.size() == 0:
+		return false
+	return true
 
 func fire(baseID: int):
 	var newTarget = targetPointer.instance()
@@ -148,17 +152,15 @@ func fireEnemy(start_location: Vector2 = Vector2(-1,-1), split: int = -1, dictio
 	newMissile.ready = true
 	dictionary[newMissile] = [newTrail, split]
 
-func fireBomber(speed: float = 0.3, fire_timer: int = 66, facing: int = 1):
+func fireBomber(speed: float = 0.3, fire_timer: int = 66, facing: int = 1, type: int = 1):
 	var newBomber = enemyBomber.instance()
 	add_child(newBomber)
 	newBomber.speed = speed
 	newBomber.deploy_timer = fire_timer
 	newBomber.facing = facing
-	match facing:
-		-1:
-			newBomber.global_position = Vector2(SCREEN_WIDTH, int(rand_range(90,110)))
-		1:
-			newBomber.global_position = Vector2(0, int(rand_range(90,110)))
+	newBomber.type = type
+	newBomber.global_position = Vector2(SCREEN_WIDTH, int(rand_range(90,110))) if facing == -1 else Vector2(0, int(rand_range(90,110)))
+	newBomber.scale.x = facing
 	bomberDict[newBomber] = newBomber.position
 	newBomber.ready = true
 
@@ -167,6 +169,9 @@ func checkForLife() -> bool:
 
 func checkForAmmo() -> bool:
 	return Silos.ammo[0] > 0 or Silos.ammo[1] > 0 or Silos.ammo[2] > 0
+
+func doResultsScreen():
+	pass
 
 func doGame():
 	Player.show()
@@ -201,11 +206,12 @@ func doGame():
 	if Input.is_action_just_pressed("debug_firesplit"):
 		fireEnemy(Vector2(-1,-1),200)
 	if Input.is_action_just_pressed("debug_firebomber"):
-		fireBomber(0.3, 100)
+		fireBomber(0.5, 1000,1 if rand_range(0,1) > 0.5 else -1, 1 if rand_range(0,1) > 0.5 else 0)
 	doTrail()
 	checkMissileState()
 	checkBomberState()
-	checkExplosionState()
+	if !checkExplosionState():
+		doResultsScreen()
 
 func _ready():
 	readHighScoreTable()
