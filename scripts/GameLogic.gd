@@ -3,6 +3,7 @@ extends Node2D
 
 onready var HUD := $HUDAndTitleScreen
 onready var Player := $PlayerCrosshair
+onready var Earth := $EarthHolder
 onready var Cities := $EarthHolder/CityHolder
 onready var Silos := $EarthHolder/SiloHolder
 onready var TimedVars := $GeneralTimer
@@ -61,15 +62,18 @@ func doTrail():
 	for missile in missileDict:
 		missileDict[missile][0].set_point_position(1, missile.global_position)
 
-func checkMissileState():
+func explosion(exPosition: Vector2):
+	var newExplosion = explosionScene.instance()
+	add_child(newExplosion)
+	newExplosion.position = exPosition
+	explosionDict[newExplosion] = [newExplosion.position, newExplosion.scale]
+
+func checkMissileState(empty: bool = false):
 	var newMissileDict = missileDict.duplicate(true)
 	for missile in missileDict:
-		if missile.ready_to_boom or missile.clear_me:
+		if missile.ready_to_boom or missile.clear_me or empty:
 			if missile.ready_to_boom:
-				var newExplosion = explosionScene.instance()
-				add_child(newExplosion)
-				newExplosion.position = missile.global_position
-				explosionDict[newExplosion] = newExplosion.position
+				explosion(missile.global_position)
 			newMissileDict.erase(missile)
 			missileDict[missile][0].queue_free()
 			if missileDict[missile].size() == 2 and typeof(missileDict[missile][1]) != TYPE_INT:
@@ -80,31 +84,25 @@ func checkMissileState():
 			fireEnemy(missile.position, -1, newMissileDict)
 	missileDict = newMissileDict.duplicate(true)
 
-func checkSmartBombState():
+func checkSmartBombState(empty: bool = false):
 	var newSmartBombDict = smartBombDict.duplicate()
 	for bomb in smartBombDict:
-		if bomb.ready_to_boom or bomb.clear_me:
+		if bomb.ready_to_boom or bomb.clear_me or empty:
 			if bomb.ready_to_boom:
-				var newExplosion = explosionScene.instance()
-				add_child(newExplosion)
-				newExplosion.position = bomb.global_position
-				explosionDict[newExplosion] = newExplosion.position
+				explosion(bomb.global_position)
 			newSmartBombDict.erase(bomb)
 			bomb.queue_free()
 		else:
-			bomb.explosionPositions = explosionDict
+			bomb.explosions = explosionDict
 			newSmartBombDict[bomb] = bomb.position
 	smartBombDict = newSmartBombDict.duplicate()
 
-func checkBomberState():
+func checkBomberState(empty: bool = false):
 	var newBomberDict = bomberDict.duplicate()
 	for bomber in bomberDict:
-		if bomber.ready_to_boom or bomber.clear_me:
+		if bomber.ready_to_boom or bomber.clear_me or empty:
 			if bomber.ready_to_boom:
-				var newExplosion = explosionScene.instance()
-				add_child(newExplosion)
-				newExplosion.position = bomber.global_position
-				explosionDict[newExplosion] = newExplosion.position
+				explosion(bomber.global_position)
 			newBomberDict.erase(bomber)
 			bomber.queue_free()
 		if bomber.deploy_timer == 0:
@@ -112,10 +110,11 @@ func checkBomberState():
 			bomber.deploy_timer = -1
 	bomberDict = newBomberDict.duplicate()
 
-func checkExplosionState() -> bool:
+func checkExplosionState(empty: bool = false) -> bool:
 	var newExplosionDict = explosionDict.duplicate(true)
 	for explosion in explosionDict:
-		if explosion.finished:
+		newExplosionDict[explosion][1] = explosion.scale
+		if explosion.finished or empty:
 			newExplosionDict.erase(explosion)
 			explosion.queue_free()
 	explosionDict = newExplosionDict.duplicate(true)
@@ -147,9 +146,10 @@ func fire(baseID: int):
 	newMissile.ready = true
 	missileDict[newMissile] = [newTrail, newTarget]
 
-func pickRandomTarget():
+func pickRandomTarget(accuracy: float = 0):
+	accuracy = clamp(accuracy, 0, 10) #stops weird stuff:tm:
 	var target_picked = targetArray[int(rand_range(0,9))]
-	return Vector2(target_picked.x + rand_range(-10+level,10-level), target_picked.y)
+	return Vector2(target_picked.x + rand_range(-10+accuracy,10-accuracy), target_picked.y)
 
 func fireEnemy(start_location: Vector2 = Vector2(-1,-1), split: int = -1, dictionary: Dictionary = missileDict, speed: float = 0.3):
 	var newMissile = enemyMissile.instance()
@@ -175,7 +175,7 @@ func fireSmartBomb(speed: float = 0.3):
 	add_child(newBomb)
 	newBomb.global_position = Vector2(rand_range(0,1)*SCREEN_WIDTH, 0)
 	newBomb.speed = speed
-	newBomb.target = pickRandomTarget()
+	newBomb.target = pickRandomTarget(10)
 	newBomb.ready = true
 	smartBombDict[newBomb] = newBomb.position
 
@@ -198,36 +198,39 @@ func checkForAmmo() -> bool:
 	return Silos.ammo[0] > 0 or Silos.ammo[1] > 0 or Silos.ammo[2] > 0
 
 func doResultsScreen():
-	pass
+	if checkExplosionState(true):
+		push_error("Explosion persisted after game ended somehow")
+	checkMissileState(true)
+	checkBomberState(true)
+	checkSmartBombState(true)
 
 func doGame():
 	Player.show()
 	HUD.get_node("DefendText").hide()
-	if checkForLife():
-		if Input.is_action_just_pressed("fire_alpha") and Silos.ammo[0] > 0:
-			Silos.ammo[0] -= 1
-			Silos.get_node("SiloAlpha").frame = 10 - Silos.ammo[0]
-			if Silos.ammo[0] < 4:
-				HUD.get_node("AlphaLabel").text = "LOW"
-			if Silos.ammo[0] == 0:
-				HUD.get_node("AlphaLabel").text = "OUT"
-			fire(0)
-		if Input.is_action_just_pressed("fire_delta") and Silos.ammo[1] > 0:
-			Silos.ammo[1] -= 1
-			Silos.get_node("SiloDelta").frame = 10 - Silos.ammo[1]
-			if Silos.ammo[1] < 4:
-				HUD.get_node("DeltaLabel").text = "LOW"
-			if Silos.ammo[1] == 0:
-				HUD.get_node("DeltaLabel").text = "OUT"
-			fire(1)
-		if Input.is_action_just_pressed("fire_omega") and Silos.ammo[2] > 0:
-			Silos.ammo[2] -= 1
-			Silos.get_node("SiloOmega").frame = 10 - Silos.ammo[2]
-			if Silos.ammo[2] < 4:
-				HUD.get_node("OmegaLabel").text = "LOW"
-			if Silos.ammo[2] == 0:
-				HUD.get_node("OmegaLabel").text = "OUT"
-			fire(2)
+	if Input.is_action_just_pressed("fire_alpha") and Silos.ammo[0] > 0:
+		Silos.ammo[0] -= 1
+		Silos.get_node("SiloAlpha").frame = 10 - Silos.ammo[0]
+		if Silos.ammo[0] < 4:
+			HUD.get_node("AlphaLabel").text = "LOW"
+		if Silos.ammo[0] == 0:
+			HUD.get_node("AlphaLabel").text = "OUT"
+		fire(0)
+	if Input.is_action_just_pressed("fire_delta") and Silos.ammo[1] > 0:
+		Silos.ammo[1] -= 1
+		Silos.get_node("SiloDelta").frame = 10 - Silos.ammo[1]
+		if Silos.ammo[1] < 4:
+			HUD.get_node("DeltaLabel").text = "LOW"
+		if Silos.ammo[1] == 0:
+			HUD.get_node("DeltaLabel").text = "OUT"
+		fire(1)
+	if Input.is_action_just_pressed("fire_omega") and Silos.ammo[2] > 0:
+		Silos.ammo[2] -= 1
+		Silos.get_node("SiloOmega").frame = 10 - Silos.ammo[2]
+		if Silos.ammo[2] < 4:
+			HUD.get_node("OmegaLabel").text = "LOW"
+		if Silos.ammo[2] == 0:
+			HUD.get_node("OmegaLabel").text = "OUT"
+		fire(2)
 	if Input.is_action_just_pressed("debug_fireenemy"):
 		fireEnemy()
 	if Input.is_action_just_pressed("debug_firesplit"):
@@ -240,8 +243,8 @@ func doGame():
 	checkMissileState()
 	checkSmartBombState()
 	checkBomberState()
-	if !checkExplosionState():
-		doResultsScreen()
+	if !checkExplosionState() and !checkForLife():
+		gameMode = "Results"
 
 func _ready():
 	readHighScoreTable()
@@ -258,13 +261,6 @@ func _ready():
 	]
 	HUD.get_node("HighScore").text = String(highscoreTable[highscoreTable.keys()[0]])
 	HUD.get_node("PlayerScore").text = String(score)
-	HUD.get_node("AlphaLabel").text = ""
-	HUD.get_node("DeltaLabel").text = ""
-	HUD.get_node("OmegaLabel").text = ""
-	HUD.get_node("CoinLabel").show()
-	HUD.get_node("AlphaLabel").hide()
-	HUD.get_node("DeltaLabel").hide()
-	HUD.get_node("OmegaLabel").hide()
 
 func _process(_delta):
 	if gameMode == "Menu":
@@ -274,6 +270,8 @@ func _process(_delta):
 		doInfoScreen()
 	if gameMode == "Play":
 		doGame()
+	if gameMode == "Results":
+		doResultsScreen()
 
 func Report_Omega(_area):
 	HUD.get_node("OmegaLabel").text = "OUT"

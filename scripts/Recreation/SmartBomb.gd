@@ -5,7 +5,7 @@ var ready = false
 var target = Vector2(0,0)
 var ready_to_boom = false
 var clear_me = false
-var explosionPositions := {}
+var explosions := {}
 
 const SCREEN_SIZE = 256
 const MAX_DISTANCE = 30
@@ -22,23 +22,18 @@ func move_smartly():
 	if position.y < target.y:
 		position.y += speed
 	#dodge movement
-	var simplePositions = []
-	for explosion in explosionPositions:
-		simplePositions.append(explosionPositions[explosion]) #adds posiiton (Vec2) to array
-	for simpPosition in simplePositions:
-		if position.x < simpPosition.x - MAX_DISTANCE or \
-			position.x > simpPosition.x + MAX_DISTANCE or \
-			position.y < simpPosition.y - MAX_DISTANCE or \
-			position.y > simpPosition.y + MAX_DISTANCE: #distance check
+	for explosion in explosions:
+		if position.x < explosions[explosion][0].x - MAX_DISTANCE or \
+			position.x > explosions[explosion][0].x + MAX_DISTANCE or \
+			position.y < explosions[explosion][0].y - MAX_DISTANCE or \
+			position.y > explosions[explosion][0].y + MAX_DISTANCE: #distance check
 			continue
-		if position.x > simpPosition.x - EXPLOSION_SIZE:
-			position.x -= 2*speed
-		if position.x < simpPosition.x + EXPLOSION_SIZE:
-			position.x += 2*speed
-		if position.y > simpPosition.y - EXPLOSION_SIZE:
-			position.y += 2*speed
-		if position.y < simpPosition.y + EXPLOSION_SIZE:
-			position.y -= 2*speed
+		if position.x > explosions[explosion][0].x - explosions[explosion][1].x*EXPLOSION_SIZE:
+			position.x += 1.5*speed
+		if position.x < explosions[explosion][0].x + explosions[explosion][1].x*EXPLOSION_SIZE:
+			position.x -= 1.5*speed
+		if position.y < explosions[explosion][0].y + explosions[explosion][1].y*EXPLOSION_SIZE:
+			position.y -= 0.8*speed
 	
 	
 

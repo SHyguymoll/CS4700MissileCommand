@@ -1,4 +1,4 @@
-extends Node
+extends Node2D
 
 export var cities = [true, true, true, true, true, true]
 
