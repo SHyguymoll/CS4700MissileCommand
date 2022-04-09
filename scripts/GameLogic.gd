@@ -157,7 +157,7 @@ func fireEnemy(start_location: Vector2 = Vector2(-1,-1), split: int = -1, dictio
 	newMissile.global_position = Vector2(rand_range(0,1)*SCREEN_WIDTH, 0)
 	newMissile.split_timer = split
 	newMissile.speed = speed
-	newMissile.angle = newMissile.get_angle_to(pickRandomTarget())
+	newMissile.angle = newMissile.get_angle_to(pickRandomTarget(level))
 	if start_location != Vector2(-1,-1):
 		newMissile.global_position = start_location
 		newMissile.angle += rand_range(-SPLIT_DIFFERENCE, SPLIT_DIFFERENCE)
