@@ -9,7 +9,6 @@ onready var Silos := $EarthHolder/SiloHolder
 onready var TimedVars := $GeneralTimer
 
 var gameMode = "Menu"
-var level = 0
 var highscoreTable := {}
 var score = 0
 var targetArray = []
@@ -17,11 +16,9 @@ var missileDict = {}
 var smartBombDict = {}
 var explosionDict = {}
 var bomberDict = {}
-var incomMissCount = 0
-var incomingMissileSet = []
-var internal_clock = 100
 var stored_cities = 0
-
+var levelNum := 1
+var levelColors = ["dfff0000", "df0022ff"] #Enemy (and HUD) color, Player color, Ground color, Background color
 
 const SCREEN_WIDTH = 256
 const SPLIT_DIFFERENCE = 0.3
@@ -33,7 +30,6 @@ onready var enemyBomber := preload("res://scenes/Bomber.tscn")
 onready var targetPointer := preload("res://scenes/TargetGraphic.tscn")
 onready var missileTrail := preload("res://scenes/MissileTrail.tscn")
 onready var explosionScene := preload("res://scenes/Explosion.tscn")
-var levelSet
 
 func readHighScoreTable():
 	var table = File.new()
@@ -50,13 +46,14 @@ func readHighScoreTable():
 	table.close()
 
 func doInfoScreen(): #fluff, finish later
-	HUD.get_node("CoinLabel").hide()
-	HUD.get_node("AlphaLabel").show()
-	HUD.get_node("DeltaLabel").show()
-	HUD.get_node("OmegaLabel").show()
-	Silos.ammo = [10,10,10]
-	
-	gameMode = "Play"
+	HUD.get_node("InfoLabel/InfoLabelData").text = (
+		"        1" +
+		"\n\n\n" +
+		str(round(float(levelNum)/2)) +
+		"         "
+	)
+	$GeneralTimer.level_start = true
+	$GeneralTimer.doInfo()
 
 func doTrail():
 	for missile in missileDict:
@@ -80,8 +77,8 @@ func checkMissileState(empty: bool = false):
 				missileDict[missile][1].queue_free()
 			missile.queue_free()
 		if missile.split_timer == 0:
-			fireEnemy(missile.position, -1, newMissileDict)
-			fireEnemy(missile.position, -1, newMissileDict)
+			fireEnemy($GeneralTimer.speed, -1, missile.position,  newMissileDict)
+			fireEnemy($GeneralTimer.speed, -1, missile.position,  newMissileDict)
 	missileDict = newMissileDict.duplicate(true)
 
 func checkSmartBombState(empty: bool = false):
@@ -106,7 +103,7 @@ func checkBomberState(empty: bool = false):
 			newBomberDict.erase(bomber)
 			bomber.queue_free()
 		if bomber.deploy_timer == 0:
-			fireEnemy(bomber.position, -1, missileDict)
+			fireEnemy($GeneralTimer.speed, -1, bomber.position, missileDict)
 			bomber.deploy_timer = -1
 	bomberDict = newBomberDict.duplicate()
 
@@ -138,7 +135,7 @@ func fire(baseID: int):
 			newMissile.global_position = Vector2(240,206)
 	var newTrail = missileTrail.instance()
 	add_child(newTrail)
-	newTrail.default_color = Color("df0022ff")
+	newTrail.default_color = Color(levelColors[1])
 	newTrail.add_point(newMissile.global_position)
 	newTrail.add_point(newMissile.global_position)
 	newMissile.angle = newMissile.get_angle_to(Player.global_position)
@@ -151,19 +148,19 @@ func pickRandomTarget(accuracy: float = 0):
 	var target_picked = targetArray[int(rand_range(0,9))]
 	return Vector2(target_picked.x + rand_range(-10+accuracy,10-accuracy), target_picked.y)
 
-func fireEnemy(start_location: Vector2 = Vector2(-1,-1), split: int = -1, dictionary: Dictionary = missileDict, speed: float = 0.3):
+func fireEnemy(speed: float = 0.3, split: int = -1, start_location: Vector2 = Vector2(-1,-1),  dictionary: Dictionary = missileDict):
 	var newMissile = enemyMissile.instance()
 	add_child(newMissile)
 	newMissile.global_position = Vector2(rand_range(0,1)*SCREEN_WIDTH, 0)
 	newMissile.split_timer = split
 	newMissile.speed = speed
-	newMissile.angle = newMissile.get_angle_to(pickRandomTarget(level))
+	newMissile.angle = newMissile.get_angle_to(pickRandomTarget(speed))
 	if start_location != Vector2(-1,-1):
 		newMissile.global_position = start_location
 		newMissile.angle += rand_range(-SPLIT_DIFFERENCE, SPLIT_DIFFERENCE)
 	var newTrail = missileTrail.instance()
 	add_child(newTrail)
-	newTrail.default_color = Color("dfff0000")
+	newTrail.default_color = Color(levelColors[0])
 	newTrail.add_point(newMissile.global_position)
 	newTrail.add_point(newMissile.global_position)
 	
@@ -207,6 +204,8 @@ func doResultsScreen():
 func doGame():
 	Player.show()
 	HUD.get_node("DefendText").hide()
+	$GeneralTimer.info_start = true
+	$GeneralTimer.doLevel("res://levels/" + str(levelNum) + ".set")
 	if Input.is_action_just_pressed("fire_alpha") and Silos.ammo[0] > 0:
 		Silos.ammo[0] -= 1
 		Silos.get_node("SiloAlpha").frame = 10 - Silos.ammo[0]
@@ -234,7 +233,7 @@ func doGame():
 	if Input.is_action_just_pressed("debug_fireenemy"):
 		fireEnemy()
 	if Input.is_action_just_pressed("debug_firesplit"):
-		fireEnemy(Vector2(-1,-1),200)
+		fireEnemy(0.3, 200, Vector2(-1,-1))
 	if Input.is_action_just_pressed("debug_firebomb"):
 		fireSmartBomb()
 	if Input.is_action_just_pressed("debug_firebomber"):
@@ -265,6 +264,7 @@ func _ready():
 func _process(_delta):
 	if gameMode == "Menu":
 		if Input.is_action_pressed("start"):
+			$GeneralTimer.info_start = true
 			gameMode = "InfoScreen"
 	if gameMode == "InfoScreen":
 		doInfoScreen()

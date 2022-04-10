@@ -121,6 +121,40 @@ __meta__ = {
 "_edit_lock_": true
 }
 
+[node name="InfoLabel" type="Label" parent="HUDAndTitleScreen"]
+anchor_left = 0.484
+anchor_top = 0.452
+anchor_right = 0.484
+anchor_bottom = 0.452
+margin_left = -39.904
+margin_top = -20.412
+margin_right = 40.096
+margin_bottom = 20.588
+custom_colors/font_color = Color( 0, 0.109804, 1, 1 )
+custom_fonts/font = ExtResource( 2 )
+text = " PLAYER  
+
+
+  X POINTS"
+align = 1
+
+[node name="InfoLabelData" type="Label" parent="HUDAndTitleScreen/InfoLabel"]
+anchor_left = 0.484
+anchor_top = 0.452
+anchor_right = 0.484
+anchor_bottom = 0.452
+margin_left = -38.72
+margin_top = -18.532
+margin_right = 41.28
+margin_bottom = 22.468
+custom_colors/font_color = Color( 1, 0, 0, 0.87451 )
+custom_fonts/font = ExtResource( 2 )
+text = "        1
+
+
+1         "
+align = 1
+
 [node name="PlayerCrosshair" type="Sprite" parent="."]
 position = Vector2( 128, 200 )
 texture = ExtResource( 3 )
@@ -152,6 +186,7 @@ __meta__ = {
 }
 
 [node name="Area2D" type="Area2D" parent="EarthHolder/Ground"]
+visible = false
 collision_layer = 2
 collision_mask = 2
 
@@ -170,6 +205,7 @@ __meta__ = {
 }
 
 [node name="Collisions" type="Area2D" parent="EarthHolder/CityHolder/L3"]
+visible = false
 position = Vector2( 8, 4 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="EarthHolder/CityHolder/L3/Collisions"]
@@ -184,6 +220,7 @@ __meta__ = {
 }
 
 [node name="Collisions" type="Area2D" parent="EarthHolder/CityHolder/L2"]
+visible = false
 position = Vector2( 8, 4 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="EarthHolder/CityHolder/L2/Collisions"]
@@ -198,6 +235,7 @@ __meta__ = {
 }
 
 [node name="Collisions" type="Area2D" parent="EarthHolder/CityHolder/L1"]
+visible = false
 position = Vector2( 8, 4 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="EarthHolder/CityHolder/L1/Collisions"]
@@ -212,6 +250,7 @@ __meta__ = {
 }
 
 [node name="Collisions" type="Area2D" parent="EarthHolder/CityHolder/R1"]
+visible = false
 position = Vector2( 8, 4 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="EarthHolder/CityHolder/R1/Collisions"]
@@ -226,6 +265,7 @@ __meta__ = {
 }
 
 [node name="Collisions" type="Area2D" parent="EarthHolder/CityHolder/R2"]
+visible = false
 position = Vector2( 8, 4 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="EarthHolder/CityHolder/R2/Collisions"]
@@ -240,6 +280,7 @@ __meta__ = {
 }
 
 [node name="Collisions" type="Area2D" parent="EarthHolder/CityHolder/R3"]
+visible = false
 position = Vector2( 8, 4 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="EarthHolder/CityHolder/R3/Collisions"]
@@ -258,6 +299,7 @@ __meta__ = {
 }
 
 [node name="Collisions" type="Area2D" parent="EarthHolder/SiloHolder/SiloAlpha"]
+visible = false
 position = Vector2( 10.5, 7 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="EarthHolder/SiloHolder/SiloAlpha/Collisions"]
@@ -273,6 +315,7 @@ __meta__ = {
 }
 
 [node name="Collisions" type="Area2D" parent="EarthHolder/SiloHolder/SiloDelta"]
+visible = false
 position = Vector2( 10.5, 7 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="EarthHolder/SiloHolder/SiloDelta/Collisions"]
@@ -288,6 +331,7 @@ __meta__ = {
 }
 
 [node name="Collisions" type="Area2D" parent="EarthHolder/SiloHolder/SiloOmega"]
+visible = false
 position = Vector2( 10.5, 7 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="EarthHolder/SiloHolder/SiloOmega/Collisions"]
