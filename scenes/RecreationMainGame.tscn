@@ -59,7 +59,7 @@ margin_right = 128.0
 margin_bottom = 72.5
 custom_colors/font_color = Color( 0, 0.109804, 1, 1 )
 custom_fonts/font = ExtResource( 2 )
-text = "DEFEND       CITIES"
+text = "DEFEND     CITIES"
 align = 1
 __meta__ = {
 "_edit_lock_": true
@@ -75,7 +75,8 @@ margin_top = -8.0
 margin_right = 120.0
 custom_colors/font_color = Color( 0, 0, 0, 1 )
 custom_fonts/font = ExtResource( 2 )
-text = "1 COIN 1 PLAY       ATARI 1980"
+text = "PUSH ENTER TO PLAY"
+align = 1
 
 [node name="AlphaLabel" type="Label" parent="HUDAndTitleScreen"]
 visible = false
@@ -139,14 +140,14 @@ text = " PLAYER
 align = 1
 
 [node name="InfoLabelData" type="Label" parent="HUDAndTitleScreen/InfoLabel"]
-anchor_left = 0.484
-anchor_top = 0.452
-anchor_right = 0.484
-anchor_bottom = 0.452
-margin_left = -38.72
-margin_top = -18.532
-margin_right = 41.28
-margin_bottom = 22.468
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -40.0
+margin_top = -20.5
+margin_right = 40.0
+margin_bottom = 20.5
 custom_colors/font_color = Color( 1, 0, 0, 0.87451 )
 custom_fonts/font = ExtResource( 2 )
 text = "        1
@@ -154,6 +155,9 @@ text = "        1
 
 1         "
 align = 1
+__meta__ = {
+"_edit_use_anchors_": true
+}
 
 [node name="PlayerCrosshair" type="Sprite" parent="."]
 position = Vector2( 128, 200 )
