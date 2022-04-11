@@ -46,12 +46,7 @@ func readHighScoreTable():
 	table.close()
 
 func doInfoScreen(): #fluff, finish later
-	HUD.get_node("InfoLabel/InfoLabelData").text = (
-		"        1" +
-		"\n\n\n" +
-		str(round(float(levelNum)/2)) +
-		"         "
-	)
+	
 	$GeneralTimer.level_start = true
 	$GeneralTimer.doInfo()
 
@@ -59,9 +54,10 @@ func doTrail():
 	for missile in missileDict:
 		missileDict[missile][0].set_point_position(1, missile.global_position)
 
-func explosion(exPosition: Vector2):
+func explosion(exPosition: Vector2, group: String = "Neutral"):
 	var newExplosion = explosionScene.instance()
 	add_child(newExplosion)
+	newExplosion.add_to_group(group)
 	newExplosion.position = exPosition
 	explosionDict[newExplosion] = [newExplosion.position, newExplosion.scale]
 
@@ -70,7 +66,13 @@ func checkMissileState(empty: bool = false):
 	for missile in missileDict:
 		if missile.ready_to_boom or missile.clear_me or empty:
 			if missile.ready_to_boom:
-				explosion(missile.global_position)
+				if !missile.is_in_group("Player"):
+					explosion(missile.global_position, "Player")
+					score += 25*round(float(levelNum)/2)
+					if missile.split_timer > 0:
+						score += 2*(25*round(float(levelNum)/2))
+				else:
+					explosion(missile.global_position)
 			newMissileDict.erase(missile)
 			missileDict[missile][0].queue_free()
 			if missileDict[missile].size() == 2 and typeof(missileDict[missile][1]) != TYPE_INT:
@@ -125,6 +127,7 @@ func fire(baseID: int):
 	newTarget.position = Player.global_position
 	var newMissile = playerMissile.instance()
 	add_child(newMissile)
+	newMissile.add_to_group("Player")
 	match baseID:
 		0:
 			newMissile.global_position = Vector2(20,206)
@@ -242,6 +245,7 @@ func doGame():
 	checkMissileState()
 	checkSmartBombState()
 	checkBomberState()
+	HUD.get_node("PlayerScore").text = str(score)
 	if !checkExplosionState() and !checkForLife():
 		gameMode = "Results"
 

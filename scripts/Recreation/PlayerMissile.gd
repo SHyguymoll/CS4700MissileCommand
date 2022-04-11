@@ -16,7 +16,7 @@ func position_valid() -> bool:
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _physics_process(_delta):
 	if ready:
-		position.x += 2*(cos(angle) + int(fast) * cos(angle))
-		position.y += 2*(sin(angle) + int(fast) * sin(angle))
+		position.x += 2.5*(cos(angle) + int(fast) * cos(angle))
+		position.y += 2.5*(sin(angle) + int(fast) * sin(angle))
 		if position_valid():
 			ready_to_boom = true

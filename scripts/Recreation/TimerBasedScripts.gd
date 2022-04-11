@@ -55,6 +55,13 @@ func doInfo():
 	if info_start == false:
 		return
 	info_start = false
+	gameLogic.HUD.get_node("InfoLabel/InfoLabelData").text = (
+		"        1" +
+		"\n\n\n" +
+		str(round(float(gameLogic.levelNum)/2)) +
+		"         "
+	)
+	gameLogic.HUD.get_node("InfoLabel").show()
 	gameLogic.HUD.get_node("CoinLabel").hide()
 	gameLogic.HUD.get_node("AlphaLabel").show()
 	gameLogic.HUD.get_node("DeltaLabel").show()
@@ -62,4 +69,5 @@ func doInfo():
 	gameLogic.Silos.ammo = [10,10,10]
 	start(1.5)
 	yield(self, "timeout")
+	gameLogic.HUD.get_node("InfoLabel").hide()
 	gameLogic.gameMode = "Play"
