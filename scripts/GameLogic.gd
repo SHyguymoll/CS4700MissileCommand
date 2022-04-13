@@ -18,7 +18,7 @@ var explosionDict = {}
 var bomberDict = {}
 var stored_cities = 0
 var levelNum := 1
-var levelColors = ["dfff0000", "df0022ff"] #Enemy (and HUD) color, Player color, Ground color, Background color
+var levelColors = {"enemyAndHud": "dfff0000", "player": "df0022ff", "ground": "ffc600", "background": "000000"} #Enemy (and HUD) color, Player color, Ground color, Background color
 
 const SCREEN_WIDTH = 256
 const SPLIT_DIFFERENCE = 0.3
@@ -31,22 +31,21 @@ onready var targetPointer := preload("res://scenes/TargetGraphic.tscn")
 onready var missileTrail := preload("res://scenes/MissileTrail.tscn")
 onready var explosionScene := preload("res://scenes/Explosion.tscn")
 
-func readHighScoreTable():
-	var table = File.new()
-	var currentline
-	if table.file_exists("user://highscore.csv"):
-		table.open("user://highscore.csv", File.READ)
-		while table.get_position() != table.get_len():
-			currentline = table.get_csv_line()
-			highscoreTable[currentline[0]] = int(currentline[1])
-	else:
-		table.open("user://highscore.csv", File.WRITE)
-		table.store_csv_line(["SOL", "7500"])
-		highscoreTable["SOL"] = 7500
-	table.close()
+#func readHighScoreTable():
+#	var table = File.new()
+#	var currentline
+#	if table.file_exists("user://highscore.csv"):
+#		table.open("user://highscore.csv", File.READ)
+#		while table.get_position() != table.get_len():
+#			currentline = table.get_csv_line()
+#			highscoreTable[currentline[0]] = int(currentline[1])
+#	else:
+#		table.open("user://highscore.csv", File.WRITE)
+#		table.store_csv_line(["SOL", "7500"])
+#		highscoreTable["SOL"] = 7500
+#	table.close()
 
 func doInfoScreen(): #fluff, finish later
-	
 	$GeneralTimer.level_start = true
 	$GeneralTimer.doInfo()
 
@@ -208,7 +207,16 @@ func doGame():
 	Player.show()
 	HUD.get_node("DefendText").hide()
 	$GeneralTimer.info_start = true
-	$GeneralTimer.doLevel("res://levels/" + str(levelNum) + ".set")
+	$GeneralTimer.doLevel(
+		float(levelNum)/10, #speed
+		.15/(float(levelNum)/10), #time between volleys
+		levelNum, #level Number
+		levelNum*3, #normal missiles
+		levelNum, #splitting missiles
+		levelNum - 5 if levelNum > 5 else 0, #smart bombs (start at level 6)
+		levelNum - 1 if levelNum > 1 else 0, #bombers (start at level 2)
+		levelNum - 2 if levelNum > 2 else 0 #satellites (start at level 3)
+	)
 	if Input.is_action_just_pressed("fire_alpha") and Silos.ammo[0] > 0:
 		Silos.ammo[0] -= 1
 		Silos.get_node("SiloAlpha").frame = 10 - Silos.ammo[0]
@@ -250,7 +258,7 @@ func doGame():
 		gameMode = "Results"
 
 func _ready():
-	readHighScoreTable()
+#	readHighScoreTable()
 	targetArray = [
 		Cities.get_node("L1").global_position,
 		Cities.get_node("L1").global_position,
@@ -262,8 +270,8 @@ func _ready():
 		Silos.get_node("SiloDelta").global_position,
 		Silos.get_node("SiloOmega").global_position
 	]
-	HUD.get_node("HighScore").text = String(highscoreTable[highscoreTable.keys()[0]])
-	HUD.get_node("PlayerScore").text = String(score)
+	#HUD.get_node("HighScore").text = String(highscoreTable[highscoreTable.keys()[0]])
+	HUD.get_node("PlayerScore").text = str(score)
 
 func _process(_delta):
 	if gameMode == "Menu":

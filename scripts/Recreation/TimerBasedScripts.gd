@@ -9,7 +9,7 @@ var round_finished = false
 var speed
 var waitTime
 
-func doLevel(levelSet: String):
+func doLevelOld(levelSet: String):
 	if level_start == false:
 		return
 	level_start = false #how to stop weirdness with yields and _process
@@ -49,6 +49,33 @@ func doLevel(levelSet: String):
 				4:
 					for _number in range(parseChar):
 						gameLogic.fireBomber(speed, int(rand_range(50,150)), 1 if rand_range(0,1) > 0.5 else -1, 0)
+	round_finished = true
+
+func doLevel(speed: float = 0.1, waitTime: float = 1.0, levelNum: int = 1, normal: int = 0, split: int = 0, smart: int = 0, plane: int = 0, satellite: int = 0):
+	if level_start == false:
+		return
+	level_start = false #how to stop weirdness with yields and _process
+	round_finished = false
+	while normal > 0 and split > 0 and smart > 0 and plane > 0 and satellite > 0:
+		start(waitTime)
+		yield(self, "timeout")
+		if normal > 0:
+			for repeat in range(levelNum):
+				gameLogic.fireEnemy(speed)
+				gameLogic.fireEnemy(speed)
+				gameLogic.fireEnemy(speed)
+		if split > 0:
+			for repeat in range(levelNum):
+				gameLogic.fireEnemy(speed, int(rand_range(175,275)))
+		if smart > 0:
+			for repeat in range(levelNum - 5): #smart bombs start showing at level 6
+				gameLogic.fireBomb(speed)
+		if plane > 0:
+			for repeat in range(levelNum - 1):
+				gameLogic.fireBomber(speed, int(rand_range(50,150)), 1 if rand_range(0,1) > 0.5 else -1, 0)
+		if satellite > 0:
+			for repeat in range(levelNum - 2):
+				gameLogic.fireBomber(speed, int(rand_range(50,150)), 1 if rand_range(0,1) > 0.5 else -1, 0)
 	round_finished = true
 
 func doInfo():
