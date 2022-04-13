@@ -3,6 +3,13 @@ extends Timer
 onready var gameLogic = $"../"
 
 var round_finished = false
+var speed = 0.0
+
+const MISSILE = 6
+const SPLIT = 2
+const BOMB_LEVEL_DELAY = 5
+const PLANE_LEVEL_DELAY = 1
+const SAT_LEVEL_DELAY = 2
 
 #func doLevelOld(levelSet: String):
 #	if level_start == false:
@@ -46,9 +53,23 @@ var round_finished = false
 #						gameLogic.fireBomber(speed, int(rand_range(50,150)), 1 if rand_range(0,1) > 0.5 else -1, 0)
 #	round_finished = true
 
-func doLevel(speed: float = 0.1, waitTime: float = 1.0, levelNum: int = 1, normal: int = 0, split: int = 0, smart: int = 0, plane: int = 0, satellite: int = 0):
+func _process(_delta):
+	if gameLogic.gameMode == "PlayStartLevel":
+		doLevel( #fix this asap
+			float(gameLogic.levelNum)/10, #speed
+			.15/(float(gameLogic.levelNum)/10), #time between volleys
+			gameLogic.levelNum * MISSILE, #normal missiles
+			gameLogic.levelNum * SPLIT, #splitting missiles
+			gameLogic.levelNum - BOMB_LEVEL_DELAY if gameLogic.levelNum > BOMB_LEVEL_DELAY else 0, #smart bombs (start at level 6)
+			gameLogic.levelNum - PLANE_LEVEL_DELAY if gameLogic.levelNum > PLANE_LEVEL_DELAY else 0, #bombers (start at level 2)
+			gameLogic.levelNum - SAT_LEVEL_DELAY if gameLogic.levelNum > SAT_LEVEL_DELAY else 0 #satellites (start at level 3)
+		)
+		gameLogic.gameMode = "PlayPersist"
+
+func doLevel(newSpeed: float = 0.1, waitTime: float = 1.0, normal: int = 0, split: int = 0, smart: int = 0, plane: int = 0, satellite: int = 0):
 	round_finished = false
-	while normal > 0 and split > 0 and smart > 0 and plane > 0 and satellite > 0:
+	speed = newSpeed
+	while normal > 0 or split > 0 or smart > 0 or plane > 0 or satellite > 0:
 		start(waitTime)
 		yield(self, "timeout")
 		if normal > 0:
@@ -82,6 +103,9 @@ func doInfo():
 	gameLogic.HUD.get_node("AlphaLabel").show()
 	gameLogic.HUD.get_node("DeltaLabel").show()
 	gameLogic.HUD.get_node("OmegaLabel").show()
+	gameLogic.HUD.get_node("PlayerScore").show()
+	gameLogic.HUD.get_node("HighScore").hide()
+	gameLogic.HUD.get_node("TitleText").hide()
 	gameLogic.Silos.ammo = [10,10,10]
 	start(1.5)
 	yield(self, "timeout")

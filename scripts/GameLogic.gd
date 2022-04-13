@@ -135,7 +135,7 @@ func fire(baseID: int):
 			newMissile.global_position = Vector2(240,206)
 	var newTrail = missileTrail.instance()
 	add_child(newTrail)
-	newTrail.default_color = Color(levelColors.enemyAndHud)
+	newTrail.default_color = Color(levelColors.player)
 	newTrail.add_point(newMissile.global_position)
 	newTrail.add_point(newMissile.global_position)
 	newMissile.angle = newMissile.get_angle_to(Player.global_position)
@@ -160,7 +160,7 @@ func fireEnemy(speed: float = 0.3, split: int = -1, start_location: Vector2 = Ve
 		newMissile.angle += rand_range(-SPLIT_DIFFERENCE, SPLIT_DIFFERENCE)
 	var newTrail = missileTrail.instance()
 	add_child(newTrail)
-	newTrail.default_color = Color(levelColors[0])
+	newTrail.default_color = Color(levelColors.enemyAndHud)
 	newTrail.add_point(newMissile.global_position)
 	newTrail.add_point(newMissile.global_position)
 	
@@ -256,7 +256,10 @@ func _ready():
 		Silos.get_node("SiloOmega").global_position
 	]
 	#HUD.get_node("HighScore").text = String(highscoreTable[highscoreTable.keys()[0]])
-	HUD.get_node("PlayerScore").text = str(score)
+	HUD.get_node("PlayerScore").hide()
+	HUD.get_node("HighScore").hide()
+	HUD.get_node("InfoLabel").hide()
+	HUD.get_node("TitleText").show()
 
 func _process(_delta):
 	if gameMode == "Menu":
@@ -265,22 +268,12 @@ func _process(_delta):
 	if gameMode == "InfoStart":
 		$GeneralTimer.doInfo()
 		gameMode = "InfoWait"
+	if gameMode == "PlayPersist" or gameMode == "PlayStartLevel": #do this first to make sure that timer script will activate on next frame
+		doGame()
 	if gameMode == "PlayStart":
 		Player.show()
 		HUD.get_node("DefendText").hide()
-		$GeneralTimer.doLevel( #fix this asap
-			float(levelNum)/10, #speed
-			.15/(float(levelNum)/10), #time between volleys
-			levelNum, #level Number
-			levelNum*3, #normal missiles
-			levelNum, #splitting missiles
-			levelNum - 5 if levelNum > 5 else 0, #smart bombs (start at level 6)
-			levelNum - 1 if levelNum > 1 else 0, #bombers (start at level 2)
-			levelNum - 2 if levelNum > 2 else 0 #satellites (start at level 3)
-		)
-		gameMode = "PlayPersist"
-	if gameMode == "PlayPersist":
-		doGame()
+		gameMode = "PlayStartLevel"
 	if gameMode == "Results":
 		doResultsScreen()
 

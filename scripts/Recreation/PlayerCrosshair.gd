@@ -8,7 +8,7 @@ onready var game = $".."
 var speed = 1
 
 func _process(_delta):
-	if game.gameMode == "Play":
+	if game.gameMode == "PlayPersist":
 		show()
 		if Input.is_action_pressed("ui_right"):
 			position.x += speed
