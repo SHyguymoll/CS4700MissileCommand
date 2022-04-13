@@ -45,9 +45,7 @@ onready var explosionScene := preload("res://scenes/Explosion.tscn")
 #		highscoreTable["SOL"] = 7500
 #	table.close()
 
-func doInfoScreen(): #fluff, finish later
-	$GeneralTimer.level_start = true
-	$GeneralTimer.doInfo()
+
 
 func doTrail():
 	for missile in missileDict:
@@ -137,7 +135,7 @@ func fire(baseID: int):
 			newMissile.global_position = Vector2(240,206)
 	var newTrail = missileTrail.instance()
 	add_child(newTrail)
-	newTrail.default_color = Color(levelColors[1])
+	newTrail.default_color = Color(levelColors.enemyAndHud)
 	newTrail.add_point(newMissile.global_position)
 	newTrail.add_point(newMissile.global_position)
 	newMissile.angle = newMissile.get_angle_to(Player.global_position)
@@ -204,19 +202,6 @@ func doResultsScreen():
 	checkSmartBombState(true)
 
 func doGame():
-	Player.show()
-	HUD.get_node("DefendText").hide()
-	$GeneralTimer.info_start = true
-	$GeneralTimer.doLevel(
-		float(levelNum)/10, #speed
-		.15/(float(levelNum)/10), #time between volleys
-		levelNum, #level Number
-		levelNum*3, #normal missiles
-		levelNum, #splitting missiles
-		levelNum - 5 if levelNum > 5 else 0, #smart bombs (start at level 6)
-		levelNum - 1 if levelNum > 1 else 0, #bombers (start at level 2)
-		levelNum - 2 if levelNum > 2 else 0 #satellites (start at level 3)
-	)
 	if Input.is_action_just_pressed("fire_alpha") and Silos.ammo[0] > 0:
 		Silos.ammo[0] -= 1
 		Silos.get_node("SiloAlpha").frame = 10 - Silos.ammo[0]
@@ -276,11 +261,25 @@ func _ready():
 func _process(_delta):
 	if gameMode == "Menu":
 		if Input.is_action_pressed("start"):
-			$GeneralTimer.info_start = true
-			gameMode = "InfoScreen"
-	if gameMode == "InfoScreen":
-		doInfoScreen()
-	if gameMode == "Play":
+			gameMode = "InfoStart"
+	if gameMode == "InfoStart":
+		$GeneralTimer.doInfo()
+		gameMode = "InfoWait"
+	if gameMode == "PlayStart":
+		Player.show()
+		HUD.get_node("DefendText").hide()
+		$GeneralTimer.doLevel( #fix this asap
+			float(levelNum)/10, #speed
+			.15/(float(levelNum)/10), #time between volleys
+			levelNum, #level Number
+			levelNum*3, #normal missiles
+			levelNum, #splitting missiles
+			levelNum - 5 if levelNum > 5 else 0, #smart bombs (start at level 6)
+			levelNum - 1 if levelNum > 1 else 0, #bombers (start at level 2)
+			levelNum - 2 if levelNum > 2 else 0 #satellites (start at level 3)
+		)
+		gameMode = "PlayPersist"
+	if gameMode == "PlayPersist":
 		doGame()
 	if gameMode == "Results":
 		doResultsScreen()
