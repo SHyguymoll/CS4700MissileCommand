@@ -5,6 +5,7 @@ var ready = false
 var facing = 1
 var ready_to_boom = false
 var clear_me = false
+var reason = "Contact"
 var deploy_timer = 66
 var type = 0
 
@@ -27,5 +28,7 @@ func _process(_delta):
 		if position.x > SCREEN_SIZE+10 and facing == 1 or position.x < -10 and facing == -1: #looks cleaner to have offsets offscreen
 			clear_me = true
 
-func Bomber_Hit(_area):
+func Bomber_Hit(area):
 	ready_to_boom = true
+	if area.get_node("../").is_in_group("Player"):
+		reason = "Player"

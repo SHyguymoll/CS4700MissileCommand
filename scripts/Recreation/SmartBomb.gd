@@ -4,6 +4,7 @@ var speed = 0.3
 var ready = false
 var target = Vector2(0,0)
 var ready_to_boom = false
+var reason = "Contact"
 var clear_me = false
 var explosions := {}
 
@@ -45,5 +46,7 @@ func _physics_process(_delta):
 		clear_me = true
 
 
-func _on_Area2D_area_entered(_area):
+func _on_Area2D_area_entered(area):
 	ready_to_boom = true
+	if area.get_node("../").is_in_group("Player"):
+		reason = "Player"

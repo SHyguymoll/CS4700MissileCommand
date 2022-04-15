@@ -64,13 +64,16 @@ func checkMissileState(empty: bool = false) -> bool:
 	for missile in missileDict:
 		if missile.ready_to_boom or missile.clear_me or empty:
 			if missile.ready_to_boom:
-				if !missile.is_in_group("Player"):
+				if missile.is_in_group("Player"):
 					explosion(missile.global_position, "Player")
-					score += 25*round(float(levelNum)/2)
-					if missile.split_timer > 0:
-						score += 2*(25*round(float(levelNum)/2))
 				else:
-					explosion(missile.global_position)
+					if missile.reason == "Player":
+						explosion(missile.global_position, "Player")
+						score += 25*round(float(levelNum)/2)
+						if missile.split_timer > 0:
+							score += 2*(25*round(float(levelNum)/2))
+					else:
+						explosion(missile.global_position)
 			newMissileDict.erase(missile)
 			missileDict[missile][0].queue_free()
 			if missileDict[missile].size() == 2 and typeof(missileDict[missile][1]) != TYPE_INT:
@@ -89,7 +92,7 @@ func checkSmartBombState(empty: bool = false) -> bool:
 	for bomb in smartBombDict:
 		if bomb.ready_to_boom or bomb.clear_me or empty:
 			if bomb.ready_to_boom:
-				if !bomb.is_in_group("Player"):
+				if bomb.reason == "Player":
 					explosion(bomb.global_position, "Player")
 					score += 25*round(float(levelNum)/2)
 				else:
@@ -109,7 +112,12 @@ func checkBomberState(empty: bool = false) -> bool:
 	for bomber in bomberDict:
 		if bomber.ready_to_boom or bomber.clear_me or empty:
 			if bomber.ready_to_boom:
-				explosion(bomber.global_position)
+				if bomber.reason == "Player":
+					explosion(bomber.global_position, "Player")
+					score += 25*round(float(levelNum)/2)
+				else:
+					explosion(bomber.global_position)
+				
 			newBomberDict.erase(bomber)
 			bomber.queue_free()
 		if bomber.deploy_timer == 0:
@@ -254,12 +262,17 @@ func doGame():
 	if Input.is_action_just_pressed("debug_firebomber"):
 		fireBomber(0.5, 1000,1 if rand_range(0,1) > 0.5 else -1, 1 if rand_range(0,1) > 0.5 else 0)
 	doTrail()
-	checkMissileState()
-	checkSmartBombState()
-	checkBomberState()
+	var currentState = 0
+	currentState += int(checkMissileState())
+	currentState += int(checkSmartBombState())
+	currentState += int(checkBomberState())
+	currentState += int(checkExplosionState())
 	HUD.get_node("PlayerScore").text = str(scoreTotal + score)
-	if !checkExplosionState() and !checkMissileState() and !checkSmartBombState() and !checkBomberState() and TimedVars.round_finished:
-		gameMode = "Results"
+	if currentState == 0 and TimedVars.round_finished:
+		if checkForLife():
+			gameMode = "Results"
+		else:
+			gameMode = "GameOver"
 
 func _ready():
 #	readHighScoreTable()
@@ -295,6 +308,9 @@ func _process(_delta):
 		gameMode = "PlayStartLevel"
 	if gameMode == "Results":
 		doResultsScreen()
+	if gameMode == "GameOver":
+		print("game has ended.")
+		get_tree().quit()
 
 func Report_Omega(_area):
 	HUD.get_node("OmegaLabel").text = "OUT"

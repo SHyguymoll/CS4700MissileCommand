@@ -5,6 +5,7 @@ var ready = false
 var angle = 0
 var target = Vector2(0,0)
 var ready_to_boom = false #kept for parity with EnemyMissile.gd
+var reason = "Player" #ditto
 var clear_me = false #ditto
 var split_timer = -1
 
