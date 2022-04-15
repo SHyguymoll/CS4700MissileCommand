@@ -81,7 +81,7 @@ func doLevel(newSpeed: float = 0.1, waitTime: float = 1.0, normal: int = 0, spli
 			gameLogic.fireEnemy(speed, int(rand_range(175,275)))
 			split -= 1
 		if smart > 0:
-			gameLogic.fireBomb(speed)
+			gameLogic.fireSmartBomb(speed)
 			smart -= 1
 		if plane > 0:
 			gameLogic.fireBomber(speed, int(rand_range(50,150)), 1 if rand_range(0,1) > 0.5 else -1, 0)
@@ -111,3 +111,22 @@ func doInfo():
 	yield(self, "timeout")
 	gameLogic.HUD.get_node("InfoLabel").hide()
 	gameLogic.gameMode = "PlayStart"
+
+func levelEnd():
+	for silo in gameLogic.Silos.ammo:
+		gameLogic.score += 5 * round(float(gameLogic.levelNum)/2) * silo
+	for city in gameLogic.Cities.cities:
+		gameLogic.score += 50 * round(float(gameLogic.levelNum)/2) * int(city)
+	gameLogic.scoreTotal += gameLogic.score
+	while gameLogic.score > 0:
+		if gameLogic.score - 10000 > 0:
+			gameLogic.stored_cities += 1
+		gameLogic.score -= 10000
+	gameLogic.levelNum += 1
+	gameLogic.score = 0
+	for city in gameLogic.Cities.cities:
+		if !city:
+			if gameLogic.stored_cities > 0:
+				gameLogic.Cities.cities[city] = true #restore city
+				gameLogic.stored_cities -= 1
+	doInfo()

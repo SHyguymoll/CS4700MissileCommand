@@ -10,6 +10,7 @@ onready var TimedVars := $GeneralTimer
 
 var gameMode = "Menu"
 var highscoreTable := {}
+var scoreTotal = 0
 var score = 0
 var targetArray = []
 var missileDict = {}
@@ -58,7 +59,7 @@ func explosion(exPosition: Vector2, group: String = "Neutral"):
 	newExplosion.position = exPosition
 	explosionDict[newExplosion] = [newExplosion.position, newExplosion.scale]
 
-func checkMissileState(empty: bool = false):
+func checkMissileState(empty: bool = false) -> bool:
 	var newMissileDict = missileDict.duplicate(true)
 	for missile in missileDict:
 		if missile.ready_to_boom or missile.clear_me or empty:
@@ -79,21 +80,31 @@ func checkMissileState(empty: bool = false):
 			fireEnemy($GeneralTimer.speed, -1, missile.position,  newMissileDict)
 			fireEnemy($GeneralTimer.speed, -1, missile.position,  newMissileDict)
 	missileDict = newMissileDict.duplicate(true)
+	if missileDict.size() == 0:
+		return false
+	return true
 
-func checkSmartBombState(empty: bool = false):
+func checkSmartBombState(empty: bool = false) -> bool:
 	var newSmartBombDict = smartBombDict.duplicate()
 	for bomb in smartBombDict:
 		if bomb.ready_to_boom or bomb.clear_me or empty:
 			if bomb.ready_to_boom:
-				explosion(bomb.global_position)
+				if !bomb.is_in_group("Player"):
+					explosion(bomb.global_position, "Player")
+					score += 25*round(float(levelNum)/2)
+				else:
+					explosion(bomb.global_position)
 			newSmartBombDict.erase(bomb)
 			bomb.queue_free()
 		else:
 			bomb.explosions = explosionDict
 			newSmartBombDict[bomb] = bomb.position
 	smartBombDict = newSmartBombDict.duplicate()
+	if smartBombDict.size() == 0:
+		return false
+	return true
 
-func checkBomberState(empty: bool = false):
+func checkBomberState(empty: bool = false) -> bool:
 	var newBomberDict = bomberDict.duplicate()
 	for bomber in bomberDict:
 		if bomber.ready_to_boom or bomber.clear_me or empty:
@@ -105,6 +116,9 @@ func checkBomberState(empty: bool = false):
 			fireEnemy($GeneralTimer.speed, -1, bomber.position, missileDict)
 			bomber.deploy_timer = -1
 	bomberDict = newBomberDict.duplicate()
+	if bomberDict.size() == 0:
+		return false
+	return true
 
 func checkExplosionState(empty: bool = false) -> bool:
 	var newExplosionDict = explosionDict.duplicate(true)
@@ -196,10 +210,15 @@ func checkForAmmo() -> bool:
 
 func doResultsScreen():
 	if checkExplosionState(true):
-		push_error("Explosion persisted after game ended somehow")
-	checkMissileState(true)
-	checkBomberState(true)
-	checkSmartBombState(true)
+		push_error("Explosion persisted after game end")
+	if checkMissileState(true):
+		push_error("Missile persisted after game end")
+	if checkBomberState(true):
+		push_error("Bomber/Satellite persisted and game end")
+	if checkSmartBombState(true):
+		push_error("Smart Bomb persisted and game end")
+	TimedVars.levelEnd()
+	gameMode = "ResultsWait"
 
 func doGame():
 	if Input.is_action_just_pressed("fire_alpha") and Silos.ammo[0] > 0:
@@ -238,8 +257,8 @@ func doGame():
 	checkMissileState()
 	checkSmartBombState()
 	checkBomberState()
-	HUD.get_node("PlayerScore").text = str(score)
-	if !checkExplosionState() and !checkForLife():
+	HUD.get_node("PlayerScore").text = str(scoreTotal + score)
+	if !checkExplosionState() and !checkMissileState() and !checkSmartBombState() and !checkBomberState() and TimedVars.round_finished:
 		gameMode = "Results"
 
 func _ready():
