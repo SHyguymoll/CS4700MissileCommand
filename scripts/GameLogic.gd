@@ -253,14 +253,14 @@ func doGame():
 		if Silos.ammo[2] == 0:
 			HUD.get_node("OmegaLabel").text = "OUT"
 		fire(2)
-	if Input.is_action_just_pressed("debug_fireenemy"):
-		fireEnemy()
-	if Input.is_action_just_pressed("debug_firesplit"):
-		fireEnemy(0.3, 200, Vector2(-1,-1))
-	if Input.is_action_just_pressed("debug_firebomb"):
-		fireSmartBomb()
-	if Input.is_action_just_pressed("debug_firebomber"):
-		fireBomber(0.5, 1000,1 if rand_range(0,1) > 0.5 else -1, 1 if rand_range(0,1) > 0.5 else 0)
+#	if Input.is_action_just_pressed("debug_fireenemy"):
+#		fireEnemy()
+#	if Input.is_action_just_pressed("debug_firesplit"):
+#		fireEnemy(0.3, 200, Vector2(-1,-1))
+#	if Input.is_action_just_pressed("debug_firebomb"):
+#		fireSmartBomb()
+#	if Input.is_action_just_pressed("debug_firebomber"):
+#		fireBomber(0.5, 1000,1 if rand_range(0,1) > 0.5 else -1, 1 if rand_range(0,1) > 0.5 else 0)
 	doTrail()
 	var currentState = 0
 	currentState += int(checkMissileState())
