@@ -48,7 +48,7 @@ func doLevel(newSpeed: float = 0.1, waitTime: float = 1.0, normal: int = 0, spli
 			gameLogic.fireBomber(speed, int(rand_range(50,150)), 1 if rand_range(0,1) > 0.5 else -1, 0)
 			plane -= 1
 		if satellite > 0:
-			gameLogic.fireBomber(speed, int(rand_range(50,150)), 1 if rand_range(0,1) > 0.5 else -1, 0)
+			gameLogic.fireBomber(speed, int(rand_range(50,150)), 1 if rand_range(0,1) > 0.5 else -1, 1)
 			satellite -= 1
 	round_finished = true
 
