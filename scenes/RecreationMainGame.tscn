@@ -183,6 +183,7 @@ texture = ExtResource( 3 )
 script = ExtResource( 4 )
 
 [node name="GeneralTimer" type="Timer" parent="."]
+one_shot = true
 script = ExtResource( 11 )
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]

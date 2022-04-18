@@ -7,6 +7,8 @@ var speed = 0.0
 
 const MISSILE = 6
 const SPLIT = 2
+const SPEED_CRUNCH = 10
+const START_TIME_SHIFT = 4
 const BOMB_LEVEL_DELAY = 5
 const PLANE_LEVEL_DELAY = 1
 const SAT_LEVEL_DELAY = 2
@@ -14,8 +16,8 @@ const SAT_LEVEL_DELAY = 2
 func _process(_delta):
 	if gameLogic.gameMode == "PlayStartLevel":
 		doLevel( #fix this asap
-			min(0.1, float(gameLogic.levelNum)/10), #speed
-			.15/(float(gameLogic.levelNum)/10), #time between volleys
+			float(gameLogic.levelNum)/SPEED_CRUNCH, #speed
+			max(0.1, START_TIME_SHIFT-log(gameLogic.levelNum)), #time between volleys
 			round(log(gameLogic.levelNum)) + MISSILE, #normal missiles
 			round(log(gameLogic.levelNum)) + SPLIT, #splitting missiles
 			round(log(gameLogic.levelNum - BOMB_LEVEL_DELAY)) if gameLogic.levelNum > BOMB_LEVEL_DELAY else 0, #smart bombs (start at level 6)
@@ -60,8 +62,11 @@ func doInfo():
 	gameLogic.HUD.get_node("InfoLabel").show()
 	gameLogic.HUD.get_node("CoinLabel").hide()
 	gameLogic.HUD.get_node("AlphaLabel").show()
+	gameLogic.HUD.get_node("AlphaLabel").text = ""
 	gameLogic.HUD.get_node("DeltaLabel").show()
+	gameLogic.HUD.get_node("DeltaLabel").text = ""
 	gameLogic.HUD.get_node("OmegaLabel").show()
+	gameLogic.HUD.get_node("OmegaLabel").text = ""
 	gameLogic.HUD.get_node("PlayerScore").show()
 	gameLogic.HUD.get_node("HighScore").hide()
 	gameLogic.HUD.get_node("TitleText").hide()
