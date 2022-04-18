@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=2]
+[gd_scene load_steps=17 format=2]
 
 [ext_resource path="res://scripts/GameLogic.gd" type="Script" id=1]
 [ext_resource path="res://fonts/Font.tres" type="DynamicFont" id=2]
@@ -15,6 +15,9 @@
 
 [sub_resource type="DynamicFont" id=3]
 size = 32
+font_data = ExtResource( 12 )
+
+[sub_resource type="DynamicFont" id=4]
 font_data = ExtResource( 12 )
 
 [sub_resource type="RectangleShape2D" id=1]
@@ -175,6 +178,21 @@ custom_colors/font_color = Color( 1, 0, 0, 0.87451 )
 custom_fonts/font = SubResource( 3 )
 text = "MISSILE
 COMMAND"
+align = 1
+
+[node name="TitleTextVar" type="Label" parent="HUDAndTitleScreen/TitleText"]
+visible = false
+anchor_left = 0.5
+anchor_top = 0.582
+anchor_right = 0.5
+anchor_bottom = 0.582
+margin_left = -104.0
+margin_top = 27.448
+margin_right = 104.0
+margin_bottom = 43.448
+custom_colors/font_color = Color( 1, 0, 0, 0.87451 )
+custom_fonts/font = SubResource( 4 )
+text = "M.A.D. MODE"
 align = 1
 
 [node name="PlayerCrosshair" type="Sprite" parent="."]

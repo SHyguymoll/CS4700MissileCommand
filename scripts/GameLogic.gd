@@ -185,7 +185,6 @@ func fireEnemy(speed: float = 0.3, split: int = -1, start_location: Vector2 = Ve
 	newTrail.default_color = Color(levelColors.enemyAndHud)
 	newTrail.add_point(newMissile.global_position)
 	newTrail.add_point(newMissile.global_position)
-	
 	newMissile.ready = true
 	dictionary[newMissile] = [newTrail, split]
 
@@ -310,7 +309,8 @@ func _process(_delta):
 		doResultsScreen()
 	if gameMode == "GameOver":
 		print("game has ended.")
-		get_tree().quit()
+		if get_tree().reload_current_scene():
+			push_error("scene failed to reload")
 
 func Report_Omega(_area):
 	HUD.get_node("OmegaLabel").text = "OUT"
