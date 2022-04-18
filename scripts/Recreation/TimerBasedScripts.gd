@@ -18,11 +18,11 @@ func _process(_delta):
 		doLevel( #fix this asap
 			float(gameLogic.levelNum)/SPEED_CRUNCH, #speed
 			max(0.1, START_TIME_SHIFT-log(gameLogic.levelNum)), #time between volleys
-			round(log(gameLogic.levelNum)) + MISSILE, #normal missiles
-			round(log(gameLogic.levelNum)) + SPLIT, #splitting missiles
-			round(log(gameLogic.levelNum - BOMB_LEVEL_DELAY)) if gameLogic.levelNum > BOMB_LEVEL_DELAY else 0, #smart bombs (start at level 6)
-			round(log(gameLogic.levelNum - PLANE_LEVEL_DELAY)) if gameLogic.levelNum > PLANE_LEVEL_DELAY else 0, #bombers (start at level 2)
-			round(log(gameLogic.levelNum - SAT_LEVEL_DELAY)) if gameLogic.levelNum > SAT_LEVEL_DELAY else 0 #satellites (start at level 3)
+			int(round(log(gameLogic.levelNum))) + MISSILE, #normal missiles
+			int(round(log(gameLogic.levelNum))) + SPLIT, #splitting missiles
+			int(round(log(gameLogic.levelNum - BOMB_LEVEL_DELAY))) if gameLogic.levelNum > BOMB_LEVEL_DELAY else 0, #smart bombs (start at level 6)
+			int(round(log(gameLogic.levelNum - PLANE_LEVEL_DELAY))) if gameLogic.levelNum > PLANE_LEVEL_DELAY else 0, #bombers (start at level 2)
+			int(round(log(gameLogic.levelNum - SAT_LEVEL_DELAY))) if gameLogic.levelNum > SAT_LEVEL_DELAY else 0 #satellites (start at level 3)
 		)
 		gameLogic.gameMode = "PlayPersist"
 
