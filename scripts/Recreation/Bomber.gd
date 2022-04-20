@@ -17,9 +17,13 @@ func _process(_delta):
 			0:
 				$Bomber/Area2D.monitoring = 1
 				$Bomber.show()
+				if !$Bomber/Area2D/AudioStreamPlayer2D.is_playing():
+					$Bomber/Area2D/AudioStreamPlayer2D.play()
 			1:
 				$Satellite/Area2D.monitoring = 1
 				$Satellite.show()
+				if !$Satellite/Area2D/AudioStreamPlayer2D.is_playing():
+					$Satellite/Area2D/AudioStreamPlayer2D.play()
 		show()
 		position += Vector2(speed*facing,0)
 		if deploy_timer != -1:

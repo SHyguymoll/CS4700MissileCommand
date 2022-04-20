@@ -44,6 +44,8 @@ func _physics_process(_delta):
 		move_smartly()
 	if position.x < 0 or position.x > SCREEN_SIZE:
 		clear_me = true
+	if !$AudioStreamPlayer2D.is_playing():
+		$AudioStreamPlayer2D.play()
 
 
 func _on_Area2D_area_entered(area):

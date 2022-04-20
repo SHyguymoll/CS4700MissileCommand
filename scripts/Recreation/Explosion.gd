@@ -6,6 +6,8 @@ var time_multiplier = 0.8
 
 const REDUCE_SEIZURES = 0.3
 
+func _ready():
+	$AudioStreamPlayer2D.play()
 
 func _process(delta):
 	modulate.r = rand_range(0+REDUCE_SEIZURES,1-REDUCE_SEIZURES)

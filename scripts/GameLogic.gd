@@ -236,6 +236,7 @@ func doGame():
 		if Silos.ammo[0] == 0:
 			HUD.get_node("AlphaLabel").text = "OUT"
 		fire(0)
+		Silos.get_node("SiloAlpha/AudioStreamPlayer2D").play()
 	if Input.is_action_just_pressed("fire_delta") and Silos.ammo[1] > 0:
 		Silos.ammo[1] -= 1
 		Silos.get_node("SiloDelta").frame = 10 - Silos.ammo[1]
@@ -244,6 +245,7 @@ func doGame():
 		if Silos.ammo[1] == 0:
 			HUD.get_node("DeltaLabel").text = "OUT"
 		fire(1)
+		Silos.get_node("SiloDelta/AudioStreamPlayer2D").play()
 	if Input.is_action_just_pressed("fire_omega") and Silos.ammo[2] > 0:
 		Silos.ammo[2] -= 1
 		Silos.get_node("SiloOmega").frame = 10 - Silos.ammo[2]
@@ -252,6 +254,7 @@ func doGame():
 		if Silos.ammo[2] == 0:
 			HUD.get_node("OmegaLabel").text = "OUT"
 		fire(2)
+		Silos.get_node("SiloOmega/AudioStreamPlayer2D").play()
 #	if Input.is_action_just_pressed("debug_fireenemy"):
 #		fireEnemy()
 #	if Input.is_action_just_pressed("debug_firesplit"):
