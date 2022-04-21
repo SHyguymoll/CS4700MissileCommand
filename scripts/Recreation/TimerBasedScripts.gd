@@ -15,15 +15,18 @@ const SAT_LEVEL_DELAY = 2
 
 func _process(_delta):
 	if gameLogic.gameMode == "PlayStartLevel":
-		doLevel( #fix this asap
-			float(gameLogic.levelNum)/SPEED_CRUNCH, #speed
-			max(0.1, START_TIME_SHIFT-log(gameLogic.levelNum)), #time between volleys
-			int(round(log(gameLogic.levelNum))) + MISSILE, #normal missiles
-			int(round(log(gameLogic.levelNum))) + SPLIT, #splitting missiles
-			int(round(log(gameLogic.levelNum - BOMB_LEVEL_DELAY))) if gameLogic.levelNum > BOMB_LEVEL_DELAY else 0, #smart bombs (start at level 6)
-			int(round(log(gameLogic.levelNum - PLANE_LEVEL_DELAY))) if gameLogic.levelNum > PLANE_LEVEL_DELAY else 0, #bombers (start at level 2)
-			int(round(log(gameLogic.levelNum - SAT_LEVEL_DELAY))) if gameLogic.levelNum > SAT_LEVEL_DELAY else 0 #satellites (start at level 3)
-		)
+		if gameLogic.variantMode and fmod(gameLogic.levelNum, 4) == 0:
+			gameLogic.fireMAD()
+		else:
+			doLevel(
+				float(gameLogic.levelNum)/SPEED_CRUNCH, #speed
+				max(0.1, START_TIME_SHIFT-log(gameLogic.levelNum)), #time between volleys
+				int(round(log(gameLogic.levelNum))) + MISSILE, #normal missiles
+				int(round(log(gameLogic.levelNum))) + SPLIT, #splitting missiles
+				int(round(log(gameLogic.levelNum - BOMB_LEVEL_DELAY))) if gameLogic.levelNum > BOMB_LEVEL_DELAY else 0, #smart bombs (start at level 6)
+				int(round(log(gameLogic.levelNum - PLANE_LEVEL_DELAY))) if gameLogic.levelNum > PLANE_LEVEL_DELAY else 0, #bombers (start at level 2)
+				int(round(log(gameLogic.levelNum - SAT_LEVEL_DELAY))) if gameLogic.levelNum > SAT_LEVEL_DELAY else 0 #satellites (start at level 3)
+			)
 		gameLogic.gameMode = "PlayPersist"
 
 func doLevel(newSpeed: float = 0.1, waitTime: float = 1.0, normal: int = 0, split: int = 0, smart: int = 0, plane: int = 0, satellite: int = 0):
@@ -45,10 +48,10 @@ func doLevel(newSpeed: float = 0.1, waitTime: float = 1.0, normal: int = 0, spli
 			gameLogic.fireSmartBomb(speed)
 			smart -= 1
 		if plane > 0:
-			gameLogic.fireBomber(speed, int(rand_range(50,150)), 1 if rand_range(0,1) > 0.5 else -1, 0)
+			gameLogic.fireBomber(speed, int(rand_range(100,200)), 1 if rand_range(0,1) > 0.5 else -1, 0)
 			plane -= 1
 		if satellite > 0:
-			gameLogic.fireBomber(speed, int(rand_range(50,150)), 1 if rand_range(0,1) > 0.5 else -1, 1)
+			gameLogic.fireBomber(speed, int(rand_range(150,250)), 1 if rand_range(0,1) > 0.5 else -1, 1)
 			satellite -= 1
 	round_finished = true
 

@@ -17,9 +17,12 @@ var missileDict = {}
 var smartBombDict = {}
 var explosionDict = {}
 var bomberDict = {}
+var madDict = {}
 var stored_cities = 0
 var levelNum := 1
 var levelColors = {"enemyAndHud": "dfff0000", "player": "df0022ff", "ground": "ffc600", "background": "000000"} #Enemy (and HUD) color, Player color, Ground color, Background color
+var variantMode = false
+
 
 const SCREEN_WIDTH = 256
 const SPLIT_DIFFERENCE = 0.3
@@ -31,6 +34,8 @@ onready var enemyBomber := preload("res://scenes/Bomber.tscn")
 onready var targetPointer := preload("res://scenes/TargetGraphic.tscn")
 onready var missileTrail := preload("res://scenes/MissileTrail.tscn")
 onready var explosionScene := preload("res://scenes/Explosion.tscn")
+
+onready var madBossFight := preload("res://scenes/MAD.tscn")
 
 #func readHighScoreTable():
 #	var table = File.new()
@@ -45,8 +50,6 @@ onready var explosionScene := preload("res://scenes/Explosion.tscn")
 #		table.store_csv_line(["SOL", "7500"])
 #		highscoreTable["SOL"] = 7500
 #	table.close()
-
-
 
 func doTrail():
 	for missile in missileDict:
@@ -125,6 +128,21 @@ func checkBomberState(empty: bool = false) -> bool:
 			bomber.deploy_timer = -1
 	bomberDict = newBomberDict.duplicate()
 	if bomberDict.size() == 0:
+		return false
+	return true
+
+func checkMADState(empty: bool = false) -> bool:
+	var newMADDict = madDict.duplicate()
+	for mad in madDict:
+		if mad.ready_to_boom or empty:
+			if mad.ready_to_boom:
+				score += 250*round(float(levelNum)/2)
+			newMADDict.erase(mad)
+			mad.queue_free()
+		if mad.state == "Idle" and rand_range(0, -log(levelNum)) < 0:
+			fireEnemy($GeneralTimer.speed, -1, Vector2(mad.position.x + rand_range(-50, 50), mad.position.y), missileDict)
+	madDict = newMADDict.duplicate()
+	if madDict.size() == 0:
 		return false
 	return true
 
@@ -208,6 +226,12 @@ func fireBomber(speed: float = 0.3, fire_timer: int = 66, facing: int = 1, type:
 	newBomber.scale.x = facing
 	bomberDict[newBomber] = newBomber.position
 	newBomber.ready = true
+
+func fireMAD():
+	var newMad = madBossFight.instance()
+	add_child(newMad)
+	newMad.health = levelNum
+	newMad.state = "Intro"
 
 func checkForLife() -> bool:
 	return Cities.cities[0] or Cities.cities[1] or Cities.cities[2] or Cities.cities[3] or Cities.cities[4] or Cities.cities[5]
