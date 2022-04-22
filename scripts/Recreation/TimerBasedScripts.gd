@@ -14,17 +14,18 @@ const START_TIME_SHIFT = 4
 const BOMB_LEVEL_DELAY = 5
 const PLANE_LEVEL_DELAY = 1
 const SAT_LEVEL_DELAY = 2
-const VARIANT_LEVEL_DELAY = 2
+const VARIANT_LEVEL_DELAY = 1 #normal is 4
 
 func _process(_delta):
 	if gameLogic.gameMode == "PlayStartLevel":
 		round_finished = false
+		speed = float(gameLogic.levelNum)/SPEED_CRUNCH
 		if gameLogic.variantMode and fmod(gameLogic.levelNum, VARIANT_LEVEL_DELAY) == 0:
 			gameLogic.fireMAD()
 			boss_finished = false
+			round_finished = true
 		else:
 			doLevel(
-				float(gameLogic.levelNum)/SPEED_CRUNCH, #speed
 				max(0.1, START_TIME_SHIFT-log(gameLogic.levelNum)), #time between volleys
 				int(round(log(gameLogic.levelNum))) + MISSILE, #normal missiles
 				int(round(log(gameLogic.levelNum))) + SPLIT, #splitting missiles
@@ -37,10 +38,9 @@ func _process(_delta):
 		if boss_finished and firing_finished and gameLogic.explosionDict.size() == 0:
 			round_finished = true
 
-func doLevel(newSpeed: float = 0.1, waitTime: float = 1.0, normal: int = 0, split: int = 0, smart: int = 0, plane: int = 0, satellite: int = 0):
-	print([newSpeed, waitTime, normal, split, smart, plane, satellite])
+func doLevel(waitTime: float = 1.0, normal: int = 0, split: int = 0, smart: int = 0, plane: int = 0, satellite: int = 0):
+	print([speed, waitTime, normal, split, smart, plane, satellite])
 	firing_finished = false
-	speed = newSpeed
 	while normal > 0 or split > 0 or smart > 0 or plane > 0 or satellite > 0:
 		start(waitTime)
 		yield(self, "timeout")

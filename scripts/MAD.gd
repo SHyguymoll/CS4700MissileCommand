@@ -4,6 +4,7 @@ var ready = false
 var direction = -1
 var ready_to_boom = false
 var state = "null"
+var shoot_timer = 100
 var health = 0
 var gameLogic
 
@@ -34,6 +35,8 @@ func _physics_process(_delta):
 				gameLogic = $"../"
 		"Idle":
 			move()
+			if shoot_timer > 0:
+				shoot_timer -= 1
 		"Hit_0":
 			position.y = lerp(position.y, 10, 0.3)
 			if position.y < 12:

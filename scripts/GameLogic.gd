@@ -140,8 +140,17 @@ func checkMADState(empty: bool = false) -> bool:
 			newMADDict.erase(mad)
 			mad.queue_free()
 			TimedVars.boss_finished = true
-		if mad.state == "Idle" and rand_range(0, -log(levelNum)) < 0.01:
-			fireEnemy($GeneralTimer.speed, -1, Vector2(mad.position.x + rand_range(-50, 50), mad.position.y), missileDict)
+		if mad.state == "Idle" and rand_range(0, -log(levelNum)) < 0.02 and mad.shoot_timer == 0:
+			fireEnemy(
+				$GeneralTimer.speed,
+				int(rand_range(-1, 100)),
+				Vector2(
+					mad.global_position.x + 98 + rand_range(-50, 50), #screen position + middle of sprite + random shift
+					mad.global_position.y + 32 #screen position + about the middle of the sprite
+				),
+				missileDict
+			)
+			mad.shoot_timer = rand_range(1, 12*(-log(levelNum)))
 	madDict = newMADDict.duplicate()
 	if madDict.size() == 0:
 		return false
