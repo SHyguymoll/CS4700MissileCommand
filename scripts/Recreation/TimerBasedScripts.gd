@@ -3,6 +3,8 @@ extends Timer
 onready var gameLogic = $"../"
 
 var round_finished = false
+var boss_finished = true
+var firing_finished = false
 var speed = 0.0
 
 const MISSILE = 6
@@ -12,11 +14,14 @@ const START_TIME_SHIFT = 4
 const BOMB_LEVEL_DELAY = 5
 const PLANE_LEVEL_DELAY = 1
 const SAT_LEVEL_DELAY = 2
+const VARIANT_LEVEL_DELAY = 2
 
 func _process(_delta):
 	if gameLogic.gameMode == "PlayStartLevel":
-		if gameLogic.variantMode and fmod(gameLogic.levelNum, 4) == 0:
+		round_finished = false
+		if gameLogic.variantMode and fmod(gameLogic.levelNum, VARIANT_LEVEL_DELAY) == 0:
 			gameLogic.fireMAD()
+			boss_finished = false
 		else:
 			doLevel(
 				float(gameLogic.levelNum)/SPEED_CRUNCH, #speed
@@ -28,10 +33,13 @@ func _process(_delta):
 				int(round(log(gameLogic.levelNum - SAT_LEVEL_DELAY))) if gameLogic.levelNum > SAT_LEVEL_DELAY else 0 #satellites (start at level 3)
 			)
 		gameLogic.gameMode = "PlayPersist"
+	if gameLogic.gameMode == "PlayPersist":
+		if boss_finished and firing_finished and gameLogic.explosionDict.size() == 0:
+			round_finished = true
 
 func doLevel(newSpeed: float = 0.1, waitTime: float = 1.0, normal: int = 0, split: int = 0, smart: int = 0, plane: int = 0, satellite: int = 0):
 	print([newSpeed, waitTime, normal, split, smart, plane, satellite])
-	round_finished = false
+	firing_finished = false
 	speed = newSpeed
 	while normal > 0 or split > 0 or smart > 0 or plane > 0 or satellite > 0:
 		start(waitTime)
@@ -53,7 +61,7 @@ func doLevel(newSpeed: float = 0.1, waitTime: float = 1.0, normal: int = 0, spli
 		if satellite > 0:
 			gameLogic.fireBomber(speed, int(rand_range(150,250)), 1 if rand_range(0,1) > 0.5 else -1, 1)
 			satellite -= 1
-	round_finished = true
+	firing_finished = true
 
 func doInfo():
 	gameLogic.HUD.get_node("InfoLabel/InfoLabelData").text = (
@@ -62,6 +70,10 @@ func doInfo():
 		str(round(float(gameLogic.levelNum)/2)) +
 		"         "
 	)
+	if gameLogic.variantMode and fmod(gameLogic.levelNum, VARIANT_LEVEL_DELAY) == 0:
+		gameLogic.HUD.get_node("InfoLabel/VariantLabel").show()
+	else:
+		gameLogic.HUD.get_node("InfoLabel/VariantLabel").hide()
 	gameLogic.HUD.get_node("InfoLabel").show()
 	gameLogic.HUD.get_node("CoinLabel").hide()
 	gameLogic.HUD.get_node("AlphaLabel").show()

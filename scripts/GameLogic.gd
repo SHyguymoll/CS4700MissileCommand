@@ -21,7 +21,7 @@ var madDict = {}
 var stored_cities = 0
 var levelNum := 1
 var levelColors = {"enemyAndHud": "dfff0000", "player": "df0022ff", "ground": "ffc600", "background": "000000"} #Enemy (and HUD) color, Player color, Ground color, Background color
-var variantMode = false
+var variantMode = true
 
 
 const SCREEN_WIDTH = 256
@@ -139,7 +139,8 @@ func checkMADState(empty: bool = false) -> bool:
 				score += 250*round(float(levelNum)/2)
 			newMADDict.erase(mad)
 			mad.queue_free()
-		if mad.state == "Idle" and rand_range(0, -log(levelNum)) < 0:
+			TimedVars.boss_finished = true
+		if mad.state == "Idle" and rand_range(0, -log(levelNum)) < 0.01:
 			fireEnemy($GeneralTimer.speed, -1, Vector2(mad.position.x + rand_range(-50, 50), mad.position.y), missileDict)
 	madDict = newMADDict.duplicate()
 	if madDict.size() == 0:
@@ -231,7 +232,9 @@ func fireMAD():
 	var newMad = madBossFight.instance()
 	add_child(newMad)
 	newMad.health = levelNum
+	newMad.position = Vector2(int(round(float(SCREEN_WIDTH)/2)), -30)
 	newMad.state = "Intro"
+	madDict[newMad] = newMad.position
 
 func checkForLife() -> bool:
 	return Cities.cities[0] or Cities.cities[1] or Cities.cities[2] or Cities.cities[3] or Cities.cities[4] or Cities.cities[5]
@@ -293,6 +296,7 @@ func doGame():
 	currentState += int(checkSmartBombState())
 	currentState += int(checkBomberState())
 	currentState += int(checkExplosionState())
+	currentState += int(checkMADState())
 	HUD.get_node("PlayerScore").text = str(scoreTotal + score)
 	if currentState == 0 and TimedVars.round_finished:
 		if checkForLife():
@@ -321,6 +325,9 @@ func _ready():
 
 func _process(_delta):
 	if gameMode == "Menu":
+		HUD.get_node("TitleText/TitleTextVar").hide()
+		if variantMode:
+			HUD.get_node("TitleText/TitleTextVar").show()
 		if Input.is_action_pressed("start"):
 			gameMode = "InfoStart"
 	if gameMode == "InfoStart":

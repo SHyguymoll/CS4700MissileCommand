@@ -1,4 +1,4 @@
-extends Sprite
+extends AnimatedSprite
 
 var ready = false
 var direction = -1
@@ -11,6 +11,9 @@ const SCREEN_SIZE = 256
 const MAX_DISTANCE = 30
 const EXPLOSION_SIZE = 20
 const SPEED = 0.3
+
+func _ready():
+	gameLogic = $"../"
 
 func move():
 	#slow guy
@@ -25,18 +28,18 @@ func move():
 func _physics_process(_delta):
 	match state:
 		"Intro":
-			position.y = lerp(position.y, 35, 1)
+			position.y = lerp(position.y, 35, 0.1)
 			if position.y > 34:
 				state = "Idle"
 				gameLogic = $"../"
 		"Idle":
 			move()
 		"Hit_0":
-			position.y = lerp(position.y, 10, 3)
+			position.y = lerp(position.y, 10, 0.3)
 			if position.y < 12:
 				state = "Hit_1"
 		"Hit_1":
-			position.y = lerp(position.y, 35, 2)
+			position.y = lerp(position.y, 35, 0.2)
 			if position.y > 34:
 				state = "Idle"
 
