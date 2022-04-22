@@ -14,7 +14,6 @@ animations = [ {
 
 [node name="Node2D" type="AnimatedSprite"]
 frames = SubResource( 1 )
-frame = 1
 playing = true
 centered = false
 script = ExtResource( 2 )

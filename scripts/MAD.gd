@@ -53,5 +53,5 @@ func _on_Area2D_area_entered(area):
 	if area.get_node("../").is_in_group("Player"):
 		health -= 1
 		state = "Hit_0"
-	if health == 0:
+	if health < 1:
 		ready_to_boom = true

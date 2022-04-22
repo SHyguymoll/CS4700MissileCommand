@@ -14,7 +14,7 @@ const START_TIME_SHIFT = 4
 const BOMB_LEVEL_DELAY = 5
 const PLANE_LEVEL_DELAY = 1
 const SAT_LEVEL_DELAY = 2
-const VARIANT_LEVEL_DELAY = 1 #normal is 4
+const VARIANT_LEVEL_DELAY = 4 #normal is 4
 
 func _process(_delta):
 	if gameLogic.gameMode == "PlayStartLevel":

@@ -2,7 +2,7 @@ extends Node2D
 
 
 onready var HUD := $HUDAndTitleScreen
-onready var Player := $PlayerCrosshair
+onready var Player := $CanvasLayer2/PlayerCrosshair
 onready var Earth := $EarthHolder
 onready var Cities := $EarthHolder/CityHolder
 onready var Silos := $EarthHolder/SiloHolder
@@ -21,7 +21,7 @@ var madDict = {}
 var stored_cities = 0
 var levelNum := 1
 var levelColors = {"enemyAndHud": "dfff0000", "player": "df0022ff", "ground": "ffc600", "background": "000000"} #Enemy (and HUD) color, Player color, Ground color, Background color
-var variantMode = true
+var variantMode = false
 
 
 const SCREEN_WIDTH = 256
@@ -339,6 +339,8 @@ func _process(_delta):
 			HUD.get_node("TitleText/TitleTextVar").show()
 		if Input.is_action_pressed("start"):
 			gameMode = "InfoStart"
+		if Input.is_action_just_pressed("debug_switch_variant"):
+			variantMode = false if variantMode else true
 	if gameMode == "InfoStart":
 		$GeneralTimer.doInfo()
 		gameMode = "InfoWait"
