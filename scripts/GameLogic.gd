@@ -19,6 +19,7 @@ var explosionDict = {}
 var bomberDict = {}
 var madDict = {}
 var stored_cities = 0
+var bonus_minimum = 5000
 var levelNum := 1
 var levelColors = {"enemyAndHud": "dfff0000", "player": "df0022ff", "ground": "ffc600", "background": "000000"} #Enemy (and HUD) color, Player color, Ground color, Background color
 var variantMode = false
@@ -26,6 +27,7 @@ var variantMode = false
 
 const SCREEN_WIDTH = 256
 const SPLIT_DIFFERENCE = 0.3
+const E_NATURAL = 2.71828182846
 
 onready var playerMissile := preload("res://scenes/PlayerMissile.tscn")
 onready var enemyMissile := preload("res://scenes/EnemyMissile.tscn")
@@ -140,17 +142,21 @@ func checkMADState(empty: bool = false) -> bool:
 			newMADDict.erase(mad)
 			mad.queue_free()
 			TimedVars.boss_finished = true
-		if mad.state == "Idle" and rand_range(0, -log(levelNum)) < 0.02 and mad.shoot_timer == 0:
-			fireEnemy(
-				$GeneralTimer.speed,
-				int(rand_range(-1, 100)),
-				Vector2(
-					mad.global_position.x + 98 + rand_range(-50, 50), #screen position + middle of sprite + random shift
-					mad.global_position.y + 32 #screen position + about the middle of the sprite
-				),
-				missileDict
-			)
-			mad.shoot_timer = rand_range(1, 12*(-log(levelNum)))
+		if mad.state == "Idle" and rand_range(0, max(-log(levelNum) + E_NATURAL, 0.01)) < 0.02 and mad.shoot_timer == 0:
+			var chooseWeapon = rand_range(0, max(-log(levelNum) + E_NATURAL, 0.02))
+			if chooseWeapon > 0 and chooseWeapon < 0.015:
+				fireSmartBomb(0.1)
+			else:
+				fireEnemy(
+					$GeneralTimer.speed,
+					int(rand_range(-1, 100)),
+					Vector2(
+						mad.global_position.x + 98 + rand_range(-50, 50), #screen position + middle of sprite + random shift
+						mad.global_position.y + 32 #screen position + about the middle of the sprite
+					),
+					missileDict
+				)
+			mad.shoot_timer = rand_range(1, 12*(-log(levelNum) + E_NATURAL))
 	madDict = newMADDict.duplicate()
 	if madDict.size() == 0:
 		return false
@@ -241,7 +247,7 @@ func fireMAD():
 	var newMad = madBossFight.instance()
 	add_child(newMad)
 	newMad.health = levelNum
-	newMad.position = Vector2(int(round(float(SCREEN_WIDTH)/2)), -30)
+	newMad.position = Vector2(0, -30)
 	newMad.state = "Intro"
 	madDict[newMad] = newMad.position
 
@@ -313,8 +319,20 @@ func doGame():
 		else:
 			gameMode = "GameOver"
 
-func _ready():
-#	readHighScoreTable()
+func buildDefaults() -> void:
+	gameMode = "Menu"
+	highscoreTable = {}
+	scoreTotal = 0
+	score = 0
+	targetArray = []
+	missileDict = {}
+	smartBombDict = {}
+	explosionDict = {}
+	bomberDict = {}
+	madDict = {}
+	stored_cities = 0
+	levelNum = 1
+	levelColors = {"enemyAndHud": "dfff0000", "player": "df0022ff", "ground": "ffc600", "background": "000000"}
 	targetArray = [
 		Cities.get_node("L1").global_position,
 		Cities.get_node("L1").global_position,
@@ -326,7 +344,13 @@ func _ready():
 		Silos.get_node("SiloDelta").global_position,
 		Silos.get_node("SiloOmega").global_position
 	]
+
+func _ready():
+#	readHighScoreTable()
 	#HUD.get_node("HighScore").text = String(highscoreTable[highscoreTable.keys()[0]])
+	
+	buildDefaults()
+	
 	HUD.get_node("PlayerScore").hide()
 	HUD.get_node("HighScore").hide()
 	HUD.get_node("InfoLabel").hide()
@@ -338,17 +362,22 @@ func _process(_delta):
 		if variantMode:
 			HUD.get_node("TitleText/TitleTextVar").show()
 		if Input.is_action_pressed("start"):
-			gameMode = "InfoStart"
+			gameMode = "InfoScreen"
 		if Input.is_action_just_pressed("debug_switch_variant"):
 			variantMode = false if variantMode else true
-	if gameMode == "InfoStart":
+			buildDefaults()
+			if variantMode:
+				bonus_minimum = 0
+	if gameMode == "InfoScreen":
 		$GeneralTimer.doInfo()
+		gameMode = "InfoScreenWait"
+	if gameMode == "InfoStart":
+		$GeneralTimer.doRoundStart()
 		gameMode = "InfoWait"
 	if gameMode == "PlayPersist" or gameMode == "PlayStartLevel": #do this first to make sure that timer script will activate on next frame
 		doGame()
 	if gameMode == "PlayStart":
 		Player.show()
-		HUD.get_node("DefendText").hide()
 		gameMode = "PlayStartLevel"
 	if gameMode == "Results":
 		doResultsScreen()

@@ -134,9 +134,9 @@ anchor_left = 0.484
 anchor_top = 0.452
 anchor_right = 0.484
 anchor_bottom = 0.452
-margin_left = -39.904
+margin_left = -123.904
 margin_top = -20.412
-margin_right = 40.096
+margin_right = 132.096
 margin_bottom = 20.588
 custom_colors/font_color = Color( 0, 0.109804, 1, 1 )
 custom_fonts/font = ExtResource( 2 )
@@ -177,7 +177,7 @@ margin_right = 60.0
 margin_bottom = 4.003
 custom_colors/font_color = Color( 0, 0.109804, 1, 1 )
 custom_fonts/font = ExtResource( 2 )
-text = "M.A.D. INCOMING"
+text = "UFO INCOMING"
 align = 1
 
 [node name="TitleText" type="Label" parent="HUDAndTitleScreen"]

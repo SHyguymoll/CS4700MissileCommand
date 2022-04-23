@@ -12,6 +12,7 @@ const SCREEN_SIZE = 256
 const MAX_DISTANCE = 30
 const EXPLOSION_SIZE = 20
 const SPEED = 0.3
+const REDUCE_SEIZURES = 0.3
 
 func _ready():
 	gameLogic = $"../"
@@ -29,7 +30,8 @@ func move():
 func _physics_process(_delta):
 	match state:
 		"Intro":
-			position.y = lerp(position.y, 35, 0.1)
+			set_modulate(Color(1, 1, 1, 1))
+			position.y += 0.6
 			if position.y > 34:
 				state = "Idle"
 				gameLogic = $"../"
@@ -39,10 +41,12 @@ func _physics_process(_delta):
 				shoot_timer -= 1
 		"Hit_0":
 			position.y = lerp(position.y, 10, 0.3)
+			set_modulate(Color(rand_range(0+REDUCE_SEIZURES,1-REDUCE_SEIZURES),rand_range(0+REDUCE_SEIZURES,1-REDUCE_SEIZURES),rand_range(0+REDUCE_SEIZURES,1-REDUCE_SEIZURES), 1))
 			if position.y < 12:
 				state = "Hit_1"
 		"Hit_1":
 			position.y = lerp(position.y, 35, 0.2)
+			set_modulate(Color(rand_range(2*(0+REDUCE_SEIZURES),(1-REDUCE_SEIZURES)/2), rand_range(2*(0+REDUCE_SEIZURES),(1-REDUCE_SEIZURES)/2), rand_range(2*(0+REDUCE_SEIZURES),(1-REDUCE_SEIZURES)/2), 1))
 			if position.y > 34:
 				state = "Idle"
 

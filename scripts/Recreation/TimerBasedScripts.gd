@@ -14,19 +14,18 @@ const START_TIME_SHIFT = 4
 const BOMB_LEVEL_DELAY = 5
 const PLANE_LEVEL_DELAY = 1
 const SAT_LEVEL_DELAY = 2
-const VARIANT_LEVEL_DELAY = 4 #normal is 4
 
 func _process(_delta):
 	if gameLogic.gameMode == "PlayStartLevel":
 		round_finished = false
 		speed = float(gameLogic.levelNum)/SPEED_CRUNCH
-		if gameLogic.variantMode and fmod(gameLogic.levelNum, VARIANT_LEVEL_DELAY) == 0:
+		if gameLogic.variantMode:
 			gameLogic.fireMAD()
 			boss_finished = false
 			round_finished = true
 		else:
 			doLevel(
-				max(0.1, START_TIME_SHIFT-log(gameLogic.levelNum)), #time between volleys
+				max(0.1, START_TIME_SHIFT - log(gameLogic.levelNum)), #time between volleys
 				int(round(log(gameLogic.levelNum))) + MISSILE, #normal missiles
 				int(round(log(gameLogic.levelNum))) + SPLIT, #splitting missiles
 				int(round(log(gameLogic.levelNum - BOMB_LEVEL_DELAY))) if gameLogic.levelNum > BOMB_LEVEL_DELAY else 0, #smart bombs (start at level 6)
@@ -64,31 +63,51 @@ func doLevel(waitTime: float = 1.0, normal: int = 0, split: int = 0, smart: int 
 	firing_finished = true
 
 func doInfo():
-	gameLogic.HUD.get_node("InfoLabel/InfoLabelData").text = (
-		"        1" +
-		"\n\n\n" +
-		str(round(float(gameLogic.levelNum)/2)) +
-		"         "
+	gameLogic.HUD.get_node("InfoLabel").text = (
+		"CURSOR: ARROW KEYS\n" +
+		"CAN'T FIRE AT YOURSELF\n" +
+		"SOME MISSILES SPLIT\n" +
+		"HARDER EVERY LEVEL\n" +
+		"GOOD LUCK"
 	)
-	if gameLogic.variantMode and fmod(gameLogic.levelNum, VARIANT_LEVEL_DELAY) == 0:
-		gameLogic.HUD.get_node("InfoLabel/VariantLabel").show()
-	else:
-		gameLogic.HUD.get_node("InfoLabel/VariantLabel").hide()
 	gameLogic.HUD.get_node("InfoLabel").show()
+	gameLogic.HUD.get_node("InfoLabel/InfoLabelData").hide()
+	gameLogic.HUD.get_node("InfoLabel/VariantLabel").hide()
 	gameLogic.HUD.get_node("CoinLabel").hide()
 	gameLogic.HUD.get_node("AlphaLabel").show()
-	gameLogic.HUD.get_node("AlphaLabel").text = ""
+	gameLogic.HUD.get_node("AlphaLabel").text = "A"
 	gameLogic.HUD.get_node("DeltaLabel").show()
-	gameLogic.HUD.get_node("DeltaLabel").text = ""
+	gameLogic.HUD.get_node("DeltaLabel").text = "S"
 	gameLogic.HUD.get_node("OmegaLabel").show()
-	gameLogic.HUD.get_node("OmegaLabel").text = ""
+	gameLogic.HUD.get_node("OmegaLabel").text = "D"
 	gameLogic.HUD.get_node("PlayerScore").show()
 	gameLogic.HUD.get_node("HighScore").hide()
 	gameLogic.HUD.get_node("TitleText").hide()
+	start(5)
+	yield(self, "timeout")
+	gameLogic.gameMode = "InfoStart"
+
+func doRoundStart():
+	gameLogic.HUD.get_node("InfoLabel").text = " PLAYER  \n\n\n  X POINTS"
+	gameLogic.HUD.get_node("InfoLabel/InfoLabelData").text = (
+		"        1\n\n\n" +
+		str(round(float(gameLogic.levelNum)/2)) +
+		"         "
+	)
+	gameLogic.HUD.get_node("InfoLabel/InfoLabelData").show()
+	gameLogic.HUD.get_node("InfoLabel").show()
+	if gameLogic.variantMode:
+		gameLogic.HUD.get_node("InfoLabel/VariantLabel").show()
+	else:
+		gameLogic.HUD.get_node("InfoLabel/VariantLabel").hide()
+	gameLogic.HUD.get_node("AlphaLabel").text = ""
+	gameLogic.HUD.get_node("DeltaLabel").text = ""
+	gameLogic.HUD.get_node("OmegaLabel").text = ""
 	gameLogic.Silos.ammo = [10,10,10]
 	start(1.5)
 	yield(self, "timeout")
 	gameLogic.HUD.get_node("InfoLabel").hide()
+	gameLogic.HUD.get_node("DefendText").hide()
 	gameLogic.gameMode = "PlayStart"
 
 func levelEnd():
@@ -97,10 +116,9 @@ func levelEnd():
 	for city in gameLogic.Cities.cities:
 		gameLogic.score += 50 * round(float(gameLogic.levelNum)/2) * int(city)
 	gameLogic.scoreTotal += gameLogic.score
-	while gameLogic.score > 0:
-		if gameLogic.score - 10000 > 0:
-			gameLogic.stored_cities += 1
-		gameLogic.score -= 10000
+	while gameLogic.score > gameLogic.bonus_minimum:
+		gameLogic.stored_cities += 1
+		gameLogic.bonus_minimum += 5000
 	gameLogic.levelNum += 1
 	gameLogic.score = 0
 	for city in gameLogic.Cities.cities:
@@ -108,4 +126,4 @@ func levelEnd():
 			if gameLogic.stored_cities > 0:
 				gameLogic.Cities.cities[city] = true #restore city
 				gameLogic.stored_cities -= 1
-	doInfo()
+	doRoundStart()
