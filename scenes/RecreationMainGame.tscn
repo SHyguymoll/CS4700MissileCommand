@@ -196,7 +196,6 @@ COMMAND"
 align = 1
 
 [node name="TitleTextVar" type="Label" parent="HUDAndTitleScreen/TitleText"]
-visible = false
 anchor_left = 0.5
 anchor_top = 0.582
 anchor_right = 0.5

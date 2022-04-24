@@ -22,7 +22,7 @@ var stored_cities = 0
 var bonus_minimum = 5000
 var levelNum := 1
 var levelColors = {"enemyAndHud": "dfff0000", "player": "df0022ff", "ground": "ffc600", "background": "000000"} #Enemy (and HUD) color, Player color, Ground color, Background color
-var variantMode = false
+var variantMode = true
 
 
 const SCREEN_WIDTH = 256
@@ -157,6 +157,9 @@ func checkMADState(empty: bool = false) -> bool:
 					missileDict
 				)
 			mad.shoot_timer = rand_range(1, 12*(-log(levelNum) + E_NATURAL))
+		if mad.state == "Hit_1" and rand_range(0, max(-log(levelNum) + E_NATURAL, 0.01)) < 0.02 and mad.call_timer == 0:
+			for _a in range(levelNum):
+				fireBomber(levelNum/10, 100, 1 if rand_range(0,1) > 0.5 else -1, 1 if rand_range(0,1) > 0.5 else 0)
 	madDict = newMADDict.duplicate()
 	if madDict.size() == 0:
 		return false
@@ -222,10 +225,12 @@ func fireEnemy(speed: float = 0.3, split: int = -1, start_location: Vector2 = Ve
 	newMissile.ready = true
 	dictionary[newMissile] = [newTrail, split]
 
-func fireSmartBomb(speed: float = 0.3):
+func fireSmartBomb(speed: float = 0.3, start_location: Vector2 = Vector2(-1,-1)):
 	var newBomb = smartBomb.instance()
 	add_child(newBomb)
-	newBomb.global_position = Vector2(rand_range(0,1)*SCREEN_WIDTH, 0)
+	newBomb.global_position = start_location
+	if start_location == Vector2(-1, -1):
+		newBomb.global_position = Vector2(rand_range(0,1)*SCREEN_WIDTH, 0)
 	newBomb.speed = speed
 	newBomb.target = pickRandomTarget(10)
 	newBomb.ready = true
@@ -238,7 +243,7 @@ func fireBomber(speed: float = 0.3, fire_timer: int = 66, facing: int = 1, type:
 	newBomber.deploy_timer = fire_timer
 	newBomber.facing = facing
 	newBomber.type = type
-	newBomber.global_position = Vector2(SCREEN_WIDTH, int(rand_range(90,110))) if facing == -1 else Vector2(0, int(rand_range(90,110)))
+	newBomber.global_position = Vector2(SCREEN_WIDTH, int(rand_range(50,130))) if facing == -1 else Vector2(0, int(rand_range(50,130)))
 	newBomber.scale.x = facing
 	bomberDict[newBomber] = newBomber.position
 	newBomber.ready = true
@@ -247,6 +252,7 @@ func fireMAD():
 	var newMad = madBossFight.instance()
 	add_child(newMad)
 	newMad.health = levelNum
+	newMad.health_start = levelNum
 	newMad.position = Vector2(0, -30)
 	newMad.state = "Intro"
 	madDict[newMad] = newMad.position
@@ -358,9 +364,9 @@ func _ready():
 
 func _process(_delta):
 	if gameMode == "Menu":
-		HUD.get_node("TitleText/TitleTextVar").hide()
+		HUD.get_node("TitleText/TitleTextVar").set_text("CLASSIC MODE")
 		if variantMode:
-			HUD.get_node("TitleText/TitleTextVar").show()
+			HUD.get_node("TitleText/TitleTextVar").set_text("M.A.D. MODE")
 		if Input.is_action_pressed("start"):
 			gameMode = "InfoScreen"
 		if Input.is_action_just_pressed("debug_switch_variant"):

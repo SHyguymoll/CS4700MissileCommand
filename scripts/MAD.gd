@@ -5,8 +5,10 @@ var direction = -1
 var ready_to_boom = false
 var state = "null"
 var shoot_timer = 100
+var call_timer = -1
 var health = 0
 var gameLogic
+var health_start = 1
 
 const SCREEN_SIZE = 256
 const MAX_DISTANCE = 30
@@ -23,7 +25,7 @@ func move():
 		direction = -1
 	if position.x < 10:
 		direction = 1
-	position.x += SPEED * direction
+	position.x += (SPEED * direction)/(health/health_start)
 	
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -39,6 +41,8 @@ func _physics_process(_delta):
 			move()
 			if shoot_timer > 0:
 				shoot_timer -= 1
+			if call_timer > 0:
+				call_timer -= 1
 		"Hit_0":
 			position.y = lerp(position.y, 10, 0.3)
 			set_modulate(Color(rand_range(0+REDUCE_SEIZURES,1-REDUCE_SEIZURES),rand_range(0+REDUCE_SEIZURES,1-REDUCE_SEIZURES),rand_range(0+REDUCE_SEIZURES,1-REDUCE_SEIZURES), 1))
