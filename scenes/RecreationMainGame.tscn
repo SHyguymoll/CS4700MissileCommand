@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=2]
+[gd_scene load_steps=22 format=2]
 
 [ext_resource path="res://scripts/GameLogic.gd" type="Script" id=1]
 [ext_resource path="res://fonts/Font.tres" type="DynamicFont" id=2]
@@ -21,11 +21,23 @@ font_data = ExtResource( 12 )
 [sub_resource type="DynamicFont" id=4]
 font_data = ExtResource( 12 )
 
+[sub_resource type="StyleBoxFlat" id=7]
+bg_color = Color( 0.0352941, 0.380392, 0, 1 )
+
+[sub_resource type="StyleBoxFlat" id=8]
+bg_color = Color( 0.192157, 0.192157, 0.192157, 1 )
+
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 6, 1 )
 
 [sub_resource type="RectangleShape2D" id=2]
 extents = Vector2( 6, 4 )
+
+[sub_resource type="StyleBoxFlat" id=5]
+bg_color = Color( 0, 0, 1, 1 )
+
+[sub_resource type="StyleBoxFlat" id=6]
+bg_color = Color( 0, 0, 0, 1 )
 
 [node name="Spatial" type="Node2D"]
 script = ExtResource( 1 )
@@ -86,7 +98,6 @@ text = "PUSH ENTER TO PLAY"
 align = 1
 
 [node name="AlphaLabel" type="Label" parent="HUDAndTitleScreen"]
-visible = false
 anchor_top = 1.0
 anchor_bottom = 1.0
 margin_top = -9.0
@@ -98,23 +109,7 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="OmegaLabel" type="Label" parent="HUDAndTitleScreen"]
-visible = false
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = -40.0
-margin_top = -9.0
-custom_colors/font_color = Color( 0, 0.109804, 1, 1 )
-custom_fonts/font = ExtResource( 2 )
-align = 1
-__meta__ = {
-"_edit_lock_": true
-}
-
 [node name="DeltaLabel" type="Label" parent="HUDAndTitleScreen"]
-visible = false
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
@@ -122,6 +117,20 @@ anchor_bottom = 1.0
 margin_left = -20.0
 margin_top = -9.0
 margin_right = 20.0
+custom_colors/font_color = Color( 0, 0.109804, 1, 1 )
+custom_fonts/font = ExtResource( 2 )
+align = 1
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="OmegaLabel" type="Label" parent="HUDAndTitleScreen"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -40.0
+margin_top = -9.0
 custom_colors/font_color = Color( 0, 0.109804, 1, 1 )
 custom_fonts/font = ExtResource( 2 )
 align = 1
@@ -166,20 +175,6 @@ __meta__ = {
 "_edit_use_anchors_": true
 }
 
-[node name="VariantLabel" type="Label" parent="HUDAndTitleScreen/InfoLabel"]
-anchor_left = 0.5
-anchor_top = 1.317
-anchor_right = 0.5
-anchor_bottom = 1.317
-margin_left = -60.0
-margin_top = -3.997
-margin_right = 60.0
-margin_bottom = 4.003
-custom_colors/font_color = Color( 0, 0.109804, 1, 1 )
-custom_fonts/font = ExtResource( 2 )
-text = "UFO INCOMING"
-align = 1
-
 [node name="TitleText" type="Label" parent="HUDAndTitleScreen"]
 anchor_left = 0.5
 anchor_top = 0.405
@@ -208,6 +203,18 @@ custom_colors/font_color = Color( 1, 0, 0, 0.87451 )
 custom_fonts/font = SubResource( 4 )
 text = "M.A.D. MODE"
 align = 1
+
+[node name="BossHealthBar" type="ProgressBar" parent="HUDAndTitleScreen"]
+anchor_right = 1.0
+margin_left = 4.0
+margin_top = 6.0
+margin_right = -4.0
+margin_bottom = 15.0
+grow_horizontal = 0
+custom_styles/fg = SubResource( 7 )
+custom_styles/bg = SubResource( 8 )
+step = 1.0
+percent_visible = false
 
 [node name="GeneralTimer" type="Timer" parent="."]
 one_shot = true
@@ -359,6 +366,25 @@ shape = SubResource( 2 )
 position = Vector2( 11, 7 )
 stream = ExtResource( 13 )
 
+[node name="ProgressBar" type="ProgressBar" parent="EarthHolder/SiloHolder/SiloAlpha"]
+anchor_left = -0.347167
+anchor_top = 0.240428
+anchor_right = 1.17664
+anchor_bottom = 0.669
+margin_left = 1.2905
+margin_top = 11.634
+margin_right = 2.2905
+margin_bottom = 12.634
+grow_horizontal = 0
+custom_styles/fg = SubResource( 5 )
+custom_styles/bg = SubResource( 6 )
+step = 1.0
+value = 37.0
+percent_visible = false
+__meta__ = {
+"_edit_use_anchors_": true
+}
+
 [node name="SiloDelta" type="Sprite" parent="EarthHolder/SiloHolder"]
 position = Vector2( 113, 206 )
 texture = ExtResource( 7 )
@@ -379,6 +405,25 @@ shape = SubResource( 2 )
 position = Vector2( 11, 7 )
 stream = ExtResource( 13 )
 
+[node name="ProgressBar" type="ProgressBar" parent="EarthHolder/SiloHolder/SiloDelta"]
+anchor_left = -0.347167
+anchor_top = 0.240428
+anchor_right = 1.17664
+anchor_bottom = 0.669
+margin_left = 1.2905
+margin_top = 11.634
+margin_right = 1.2905
+margin_bottom = 11.634
+grow_horizontal = 0
+custom_styles/fg = SubResource( 5 )
+custom_styles/bg = SubResource( 6 )
+step = 1.0
+value = 37.0
+percent_visible = false
+__meta__ = {
+"_edit_use_anchors_": true
+}
+
 [node name="SiloOmega" type="Sprite" parent="EarthHolder/SiloHolder"]
 position = Vector2( 230, 206 )
 texture = ExtResource( 7 )
@@ -398,6 +443,25 @@ shape = SubResource( 2 )
 [node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="EarthHolder/SiloHolder/SiloOmega"]
 position = Vector2( 11, 7 )
 stream = ExtResource( 13 )
+
+[node name="ProgressBar" type="ProgressBar" parent="EarthHolder/SiloHolder/SiloOmega"]
+anchor_left = -0.347167
+anchor_top = 0.240428
+anchor_right = 1.17664
+anchor_bottom = 0.669
+margin_left = 1.2905
+margin_top = 11.634
+margin_right = 1.2905
+margin_bottom = 11.634
+grow_horizontal = 0
+custom_styles/fg = SubResource( 5 )
+custom_styles/bg = SubResource( 6 )
+step = 1.0
+value = 37.0
+percent_visible = false
+__meta__ = {
+"_edit_use_anchors_": true
+}
 
 [node name="CanvasLayer2" type="CanvasLayer" parent="."]
 layer = 4

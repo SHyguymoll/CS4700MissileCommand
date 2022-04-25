@@ -21,6 +21,7 @@ func _process(_delta):
 		speed = float(gameLogic.levelNum)/SPEED_CRUNCH
 		if gameLogic.variantMode:
 			gameLogic.fireMAD()
+			
 			boss_finished = false
 			round_finished = true
 		else:
@@ -70,20 +71,33 @@ func doInfo():
 		"HARDER EVERY LEVEL\n" +
 		"GOOD LUCK"
 	)
+	if gameLogic.variantMode:
+		gameLogic.HUD.get_node("InfoLabel").text = (
+			"CURSOR: ARROW KEYS\n" +
+			"CAN'T FIRE AT YOURSELF\n" +
+			"ONLY ONE TARGET\n" +
+			"HARDER EVERY LEVEL\n" +
+			"RELOAD WITH SECOND KEY"
+		)
 	gameLogic.HUD.get_node("InfoLabel").show()
 	gameLogic.HUD.get_node("InfoLabel/InfoLabelData").hide()
-	gameLogic.HUD.get_node("InfoLabel/VariantLabel").hide()
 	gameLogic.HUD.get_node("CoinLabel").hide()
-	gameLogic.HUD.get_node("AlphaLabel").show()
+	
 	gameLogic.HUD.get_node("AlphaLabel").text = "A"
-	gameLogic.HUD.get_node("DeltaLabel").show()
 	gameLogic.HUD.get_node("DeltaLabel").text = "S"
-	gameLogic.HUD.get_node("OmegaLabel").show()
 	gameLogic.HUD.get_node("OmegaLabel").text = "D"
+	if gameLogic.variantMode:
+		gameLogic.HUD.get_node("AlphaLabel").text = "A, Q"
+		gameLogic.HUD.get_node("DeltaLabel").text = "S, W"
+		gameLogic.HUD.get_node("OmegaLabel").text = "D, E"
+	
+	gameLogic.HUD.get_node("AlphaLabel").show()
+	gameLogic.HUD.get_node("DeltaLabel").show()
+	gameLogic.HUD.get_node("OmegaLabel").show()
 	gameLogic.HUD.get_node("PlayerScore").show()
 	gameLogic.HUD.get_node("HighScore").hide()
 	gameLogic.HUD.get_node("TitleText").hide()
-	start(5)
+	start(3)
 	yield(self, "timeout")
 	gameLogic.gameMode = "InfoStart"
 
@@ -96,14 +110,11 @@ func doRoundStart():
 	)
 	gameLogic.HUD.get_node("InfoLabel/InfoLabelData").show()
 	gameLogic.HUD.get_node("InfoLabel").show()
-	if gameLogic.variantMode:
-		gameLogic.HUD.get_node("InfoLabel/VariantLabel").show()
-	else:
-		gameLogic.HUD.get_node("InfoLabel/VariantLabel").hide()
 	gameLogic.HUD.get_node("AlphaLabel").text = ""
 	gameLogic.HUD.get_node("DeltaLabel").text = ""
 	gameLogic.HUD.get_node("OmegaLabel").text = ""
-	gameLogic.Silos.ammo = [10,10,10]
+	if !gameLogic.variantMode:
+		gameLogic.Silos.ammo = [10,10,10]
 	start(1.5)
 	yield(self, "timeout")
 	gameLogic.HUD.get_node("InfoLabel").hide()

@@ -25,7 +25,7 @@ var levelColors = {"enemyAndHud": "dfff0000", "player": "df0022ff", "ground": "f
 var variantMode = true
 
 
-const SCREEN_WIDTH = 256
+const SCREEN_WIDTH = 256.0
 const SPLIT_DIFFERENCE = 0.3
 const E_NATURAL = 2.71828182846
 
@@ -151,15 +151,16 @@ func checkMADState(empty: bool = false) -> bool:
 					$GeneralTimer.speed,
 					int(rand_range(-1, 100)),
 					Vector2(
-						mad.global_position.x + 98 + rand_range(-50, 50), #screen position + middle of sprite + random shift
-						mad.global_position.y + 32 #screen position + about the middle of the sprite
+						mad.global_position.x + 6 + rand_range(-5, 5), #screen position + middle of sprite + random shift
+						mad.global_position.y + 5 #screen position + the bottom of the sprite
 					),
 					missileDict
 				)
-			mad.shoot_timer = rand_range(1, 12*(-log(levelNum) + E_NATURAL))
+			mad.shoot_timer = rand_range(1, max(12 * (-log(levelNum) + E_NATURAL), 4))
 		if mad.state == "Hit_1" and rand_range(0, max(-log(levelNum) + E_NATURAL, 0.01)) < 0.02 and mad.call_timer == 0:
 			for _a in range(levelNum):
-				fireBomber(levelNum/10, 100, 1 if rand_range(0,1) > 0.5 else -1, 1 if rand_range(0,1) > 0.5 else 0)
+				fireBomber(float(levelNum)/10, 100, 1 if rand_range(0,1) > 0.5 else -1, 1 if rand_range(0,1) > 0.5 else 0)
+			mad.call_timer =  rand_range(1, 25*(-log(levelNum) + E_NATURAL))
 	madDict = newMADDict.duplicate()
 	if madDict.size() == 0:
 		return false
@@ -251,9 +252,12 @@ func fireBomber(speed: float = 0.3, fire_timer: int = 66, facing: int = 1, type:
 func fireMAD():
 	var newMad = madBossFight.instance()
 	add_child(newMad)
-	newMad.health = levelNum
-	newMad.health_start = levelNum
-	newMad.position = Vector2(0, -30)
+	newMad.health = float(levelNum)
+	newMad.health_start = float(levelNum)
+	HUD.get_node("BossHealthBar").max_value = float(levelNum)
+	HUD.get_node("BossHealthBar").value = float(levelNum)
+	HUD.get_node("BossHealthBar").show()
+	newMad.position = Vector2((SCREEN_WIDTH/2)-11, -30)
 	newMad.state = "Intro"
 	madDict[newMad] = newMad.position
 
@@ -275,42 +279,59 @@ func doResultsScreen():
 	TimedVars.levelEnd()
 	gameMode = "ResultsWait"
 
+func updateSiloCounts():
+	HUD.get_node("AlphaLabel").text = ""
+	HUD.get_node("DeltaLabel").text = ""
+	HUD.get_node("OmegaLabel").text = ""
+	if Silos.ammo[0] < 4:
+		HUD.get_node("AlphaLabel").text = "LOW"
+	if Silos.ammo[0] == 0:
+		HUD.get_node("AlphaLabel").text = "OUT"
+		if variantMode:
+			HUD.get_node("AlphaLabel").text = "REL"
+	if Silos.ammo[1] < 4:
+		HUD.get_node("DeltaLabel").text = "LOW"
+	if Silos.ammo[1] == 0:
+		HUD.get_node("DeltaLabel").text = "OUT"
+		if variantMode:
+			HUD.get_node("DeltaLabel").text = "REL"
+	if Silos.ammo[2] < 4:
+		HUD.get_node("OmegaLabel").text = "LOW"
+	if Silos.ammo[2] == 0:
+		HUD.get_node("OmegaLabel").text = "OUT"
+		if variantMode:
+			HUD.get_node("OmegaLabel").text = "REL"
+
 func doGame():
-	if Input.is_action_just_pressed("fire_alpha") and Silos.ammo[0] > 0:
+	if Input.is_action_just_pressed("fire_alpha") and Silos.ammo[0] > 0 and Silos.baseState[0] == "Ready":
 		Silos.ammo[0] -= 1
 		Silos.get_node("SiloAlpha").frame = 10 - Silos.ammo[0]
-		if Silos.ammo[0] < 4:
-			HUD.get_node("AlphaLabel").text = "LOW"
-		if Silos.ammo[0] == 0:
-			HUD.get_node("AlphaLabel").text = "OUT"
 		fire(0)
 		Silos.get_node("SiloAlpha/AudioStreamPlayer2D").play()
-	if Input.is_action_just_pressed("fire_delta") and Silos.ammo[1] > 0:
+	if Input.is_action_just_pressed("fire_delta") and Silos.ammo[1] > 0 and Silos.baseState[1] == "Ready":
 		Silos.ammo[1] -= 1
 		Silos.get_node("SiloDelta").frame = 10 - Silos.ammo[1]
-		if Silos.ammo[1] < 4:
-			HUD.get_node("DeltaLabel").text = "LOW"
-		if Silos.ammo[1] == 0:
-			HUD.get_node("DeltaLabel").text = "OUT"
 		fire(1)
 		Silos.get_node("SiloDelta/AudioStreamPlayer2D").play()
-	if Input.is_action_just_pressed("fire_omega") and Silos.ammo[2] > 0:
+	if Input.is_action_just_pressed("fire_omega") and Silos.ammo[2] > 0 and Silos.baseState[2] == "Ready":
 		Silos.ammo[2] -= 1
 		Silos.get_node("SiloOmega").frame = 10 - Silos.ammo[2]
-		if Silos.ammo[2] < 4:
-			HUD.get_node("OmegaLabel").text = "LOW"
-		if Silos.ammo[2] == 0:
-			HUD.get_node("OmegaLabel").text = "OUT"
 		fire(2)
 		Silos.get_node("SiloOmega/AudioStreamPlayer2D").play()
-#	if Input.is_action_just_pressed("debug_fireenemy"):
-#		fireEnemy()
-#	if Input.is_action_just_pressed("debug_firesplit"):
-#		fireEnemy(0.3, 200, Vector2(-1,-1))
-#	if Input.is_action_just_pressed("debug_firebomb"):
-#		fireSmartBomb()
-#	if Input.is_action_just_pressed("debug_firebomber"):
-#		fireBomber(0.5, 1000,1 if rand_range(0,1) > 0.5 else -1, 1 if rand_range(0,1) > 0.5 else 0)
+	if variantMode:
+		if Input.is_action_pressed("reload_alpha"):
+			Silos.reload(0)
+		else:
+			Silos.baseState[0] = "Ready"
+		if Input.is_action_pressed("reload_delta"):
+			Silos.reload(1)
+		else:
+			Silos.baseState[1] = "Ready"
+		if Input.is_action_pressed("reload_omega"):
+			Silos.reload(2)
+		else:
+			Silos.baseState[2] = "Ready"
+	updateSiloCounts()
 	doTrail()
 	var currentState = 0
 	currentState += int(checkMissileState())
@@ -361,8 +382,9 @@ func _ready():
 	HUD.get_node("HighScore").hide()
 	HUD.get_node("InfoLabel").hide()
 	HUD.get_node("TitleText").show()
+	HUD.get_node("BossHealthBar").hide()
 
-func _process(_delta):
+func _physics_process(_delta):
 	if gameMode == "Menu":
 		HUD.get_node("TitleText/TitleTextVar").set_text("CLASSIC MODE")
 		if variantMode:
