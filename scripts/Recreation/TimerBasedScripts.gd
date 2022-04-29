@@ -123,15 +123,26 @@ func doRoundStart():
 	yield(self, "timeout")
 	gameLogic.HUD.get_node("InfoLabel").hide()
 	gameLogic.HUD.get_node("DefendText").hide()
-	gameLogic.HUD.get_node("BonusText").hide()
+	gameLogic.HUD.get_node("PlayerScore").show()
 	gameLogic.gameMode = "PlayStart"
 
 func levelEnd():
+	gameLogic.HUD.get_node("InfoLabel").text = "SCORE:"
+	gameLogic.HUD.get_node("InfoLabel/InfoLabelData").text = "\n\n" + str(gameLogic.scoreTotal)
+	gameLogic.HUD.get_node("InfoLabel").show()
+	gameLogic.HUD.get_node("PlayerScore").hide()
 	for silo in gameLogic.Silos.ammo:
 		gameLogic.score += 5 * round(float(gameLogic.levelNum)/2) * silo
+		gameLogic.HUD.get_node("InfoLabel/InfoLabelData").text = "\n\n" + str(gameLogic.scoreTotal + gameLogic.score)
+		start(0.1)
+		yield(self, "timeout")
 	for city in gameLogic.Cities.cities:
 		gameLogic.score += 50 * round(float(gameLogic.levelNum)/2) * int(city)
+		gameLogic.HUD.get_node("InfoLabel/InfoLabelData").text = "\n\n" + str(gameLogic.scoreTotal + gameLogic.score)
+		start(0.2)
+		yield(self, "timeout")
 	gameLogic.scoreTotal += gameLogic.score
+	gameLogic.score = 0
 	if gameLogic.variantMode:
 		if fmod(gameLogic.levelNum, 3) == 0:
 			gameLogic.stored_cities += 1
@@ -140,10 +151,12 @@ func levelEnd():
 			gameLogic.stored_cities += 1
 			gameLogic.bonus_minimum += 5000
 	gameLogic.levelNum += 1
-	gameLogic.score = 0
 	for city in len(gameLogic.Cities.cities):
 		if !gameLogic.Cities.cities[city]:
 			if gameLogic.stored_cities > 0:
 				gameLogic.Cities.cities[city] = true #restore city
 				gameLogic.stored_cities -= 1
+				gameLogic.HUD.get_node("InfoLabel").text = "SCORE:\n\n\n\nBONUS CITY"
+	start(1.0)
+	yield(self, "timeout")
 	doRoundStart()

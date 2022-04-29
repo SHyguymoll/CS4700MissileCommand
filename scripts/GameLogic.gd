@@ -384,7 +384,6 @@ func _ready():
 	HUD.get_node("TitleText").show()
 	HUD.get_node("VariantSwitch").show()
 	HUD.get_node("BossHealthBar").hide()
-	HUD.get_node("BonusText").hide()
 
 func _physics_process(_delta):
 	if gameMode == "Menu":
