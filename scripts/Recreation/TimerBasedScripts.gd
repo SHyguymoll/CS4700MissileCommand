@@ -116,10 +116,14 @@ func doRoundStart():
 	gameLogic.HUD.get_node("OmegaLabel").text = ""
 	if !gameLogic.variantMode:
 		gameLogic.Silos.ammo = [10,10,10]
+	if gameLogic.variantMode:
+		if fmod(gameLogic.levelNum, 3) == 0:
+			gameLogic.HUD.get_node("BonusText").show()
 	start(1.5)
 	yield(self, "timeout")
 	gameLogic.HUD.get_node("InfoLabel").hide()
 	gameLogic.HUD.get_node("DefendText").hide()
+	gameLogic.HUD.get_node("BonusText").hide()
 	gameLogic.gameMode = "PlayStart"
 
 func levelEnd():
@@ -128,13 +132,17 @@ func levelEnd():
 	for city in gameLogic.Cities.cities:
 		gameLogic.score += 50 * round(float(gameLogic.levelNum)/2) * int(city)
 	gameLogic.scoreTotal += gameLogic.score
-	while gameLogic.score > gameLogic.bonus_minimum:
-		gameLogic.stored_cities += 1
-		gameLogic.bonus_minimum += 5000
+	if gameLogic.variantMode:
+		if fmod(gameLogic.levelNum, 3) == 0:
+			gameLogic.stored_cities += 1
+	else:
+		while gameLogic.scoreTotal > gameLogic.bonus_minimum:
+			gameLogic.stored_cities += 1
+			gameLogic.bonus_minimum += 5000
 	gameLogic.levelNum += 1
 	gameLogic.score = 0
-	for city in gameLogic.Cities.cities:
-		if !city:
+	for city in len(gameLogic.Cities.cities):
+		if !gameLogic.Cities.cities[city]:
 			if gameLogic.stored_cities > 0:
 				gameLogic.Cities.cities[city] = true #restore city
 				gameLogic.stored_cities -= 1

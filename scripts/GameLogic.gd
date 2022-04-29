@@ -261,8 +261,8 @@ func fireMAD():
 	newMad.state = "Intro"
 	madDict[newMad] = newMad.position
 
-func checkForLife() -> bool:
-	return Cities.cities[0] or Cities.cities[1] or Cities.cities[2] or Cities.cities[3] or Cities.cities[4] or Cities.cities[5]
+func checkForLife() -> int:
+	return int(Cities.cities[0]) + int(Cities.cities[1]) + int(Cities.cities[2]) + int(Cities.cities[3]) + int(Cities.cities[4]) + int(Cities.cities[5])
 
 func checkForAmmo() -> bool:
 	return Silos.ammo[0] > 0 or Silos.ammo[1] > 0 or Silos.ammo[2] > 0
@@ -320,15 +320,15 @@ func doGame():
 		Silos.get_node("SiloOmega/AudioStreamPlayer2D").play()
 	if variantMode:
 		if Input.is_action_pressed("reload_alpha"):
-			Silos.reload(0)
+			Silos.reload(0, checkForLife())
 		else:
 			Silos.baseState[0] = "Ready"
 		if Input.is_action_pressed("reload_delta"):
-			Silos.reload(1)
+			Silos.reload(1, checkForLife())
 		else:
 			Silos.baseState[1] = "Ready"
 		if Input.is_action_pressed("reload_omega"):
-			Silos.reload(2)
+			Silos.reload(2, checkForLife())
 		else:
 			Silos.baseState[2] = "Ready"
 	updateSiloCounts()
@@ -340,7 +340,7 @@ func doGame():
 	currentState += int(checkExplosionState())
 	currentState += int(checkMADState())
 	HUD.get_node("PlayerScore").text = str(scoreTotal + score)
-	if currentState == 0 and TimedVars.round_finished:
+	if currentState == 0 and TimedVars.round_finished and TimedVars.boss_finished:
 		if checkForLife():
 			gameMode = "Results"
 		else:
@@ -384,6 +384,7 @@ func _ready():
 	HUD.get_node("TitleText").show()
 	HUD.get_node("VariantSwitch").show()
 	HUD.get_node("BossHealthBar").hide()
+	HUD.get_node("BonusText").hide()
 
 func _physics_process(_delta):
 	if gameMode == "Menu":

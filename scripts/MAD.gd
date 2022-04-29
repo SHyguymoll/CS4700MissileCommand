@@ -10,7 +10,7 @@ var health = 0.0
 var gameLogic
 var health_start = 1.0
 
-const SCREEN_SIZE = 256
+const SCREEN_SIZE = 256.0
 const MAX_DISTANCE = 30
 const EXPLOSION_SIZE = 20
 const SPEED = 0.3
@@ -25,8 +25,8 @@ func move():
 	if position.x < 10:
 		direction = 1
 	position.x += (SPEED * direction)/(health/health_start)
-	if health/health_start < 0.333:
-		position.y = 34 + sin(position.x) * 20
+	if health/health_start < 0.5:
+		position.y = 34 + sin(position.x/(SCREEN_SIZE/20)) * 30
 	
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.

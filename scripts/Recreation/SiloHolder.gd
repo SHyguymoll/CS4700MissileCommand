@@ -1,7 +1,7 @@
 extends Node2D
 
 var ammo = [10,10,10]
-var ammoReloadTimer = [0,0,0]
+var ammoReloadTimer = [0.0,0.0,0.0]
 var baseState = ["Ready","Ready","Ready"]
 
 func _process(_delta):
@@ -21,14 +21,14 @@ func _process(_delta):
 	if baseState[2] == "Reloading":
 		$SiloOmega/ProgressBar.show()
 
-func reload(base: int):
+func reload(base: int, multiplier: float):
 	baseState[base] = "Reloading"
 	if ammo[base] == 10:
 		return
-	ammoReloadTimer[base] += 1
-	if ammoReloadTimer[base] > 99:
+	ammoReloadTimer[base] += (1.0/6)*multiplier
+	if ammoReloadTimer[base] > 99.9:
 		ammo[base] += 1
-		ammoReloadTimer[base] = 0
+		ammoReloadTimer[base] = 0.0
 
 func Alpha_breached(_area):
 	ammo[0] = 0
