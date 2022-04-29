@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=2]
+[gd_scene load_steps=24 format=2]
 
 [ext_resource path="res://scripts/GameLogic.gd" type="Script" id=1]
 [ext_resource path="res://fonts/Font.tres" type="DynamicFont" id=2]
@@ -13,6 +13,8 @@
 [ext_resource path="res://scripts/Recreation/TimerBasedScripts.gd" type="Script" id=11]
 [ext_resource path="res://fonts/PressStart2P-Regular.ttf" type="DynamicFontData" id=12]
 [ext_resource path="res://sound/Launch.wav" type="AudioStream" id=13]
+[ext_resource path="res://art/button.png" type="Texture" id=14]
+[ext_resource path="res://art/button_pressed.png" type="Texture" id=15]
 
 [sub_resource type="DynamicFont" id=3]
 size = 32
@@ -215,6 +217,16 @@ custom_styles/fg = SubResource( 7 )
 custom_styles/bg = SubResource( 8 )
 step = 1.0
 percent_visible = false
+
+[node name="VariantSwitch" type="TextureButton" parent="HUDAndTitleScreen"]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -57.0
+margin_right = 57.0
+margin_bottom = 20.0
+toggle_mode = true
+texture_normal = ExtResource( 14 )
+texture_pressed = ExtResource( 15 )
 
 [node name="GeneralTimer" type="Timer" parent="."]
 one_shot = true
@@ -471,6 +483,7 @@ position = Vector2( 128, 200 )
 texture = ExtResource( 3 )
 script = ExtResource( 4 )
 
+[connection signal="toggled" from="HUDAndTitleScreen/VariantSwitch" to="." method="VariantSwitch"]
 [connection signal="area_entered" from="EarthHolder/CityHolder/L3/Collisions" to="EarthHolder/CityHolder" method="L3_breached"]
 [connection signal="area_entered" from="EarthHolder/CityHolder/L2/Collisions" to="EarthHolder/CityHolder" method="L2_breached"]
 [connection signal="area_entered" from="EarthHolder/CityHolder/L1/Collisions" to="EarthHolder/CityHolder" method="L1_breached"]

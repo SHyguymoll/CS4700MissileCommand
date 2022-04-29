@@ -97,6 +97,7 @@ func doInfo():
 	gameLogic.HUD.get_node("PlayerScore").show()
 	gameLogic.HUD.get_node("HighScore").hide()
 	gameLogic.HUD.get_node("TitleText").hide()
+	gameLogic.HUD.get_node("VariantSwitch").hide()
 	start(3)
 	yield(self, "timeout")
 	gameLogic.gameMode = "InfoStart"

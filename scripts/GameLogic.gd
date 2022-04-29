@@ -22,7 +22,7 @@ var stored_cities = 0
 var bonus_minimum = 5000
 var levelNum := 1
 var levelColors = {"enemyAndHud": "dfff0000", "player": "df0022ff", "ground": "ffc600", "background": "000000"} #Enemy (and HUD) color, Player color, Ground color, Background color
-var variantMode = true
+var variantMode = false
 
 
 const SCREEN_WIDTH = 256.0
@@ -382,6 +382,7 @@ func _ready():
 	HUD.get_node("HighScore").hide()
 	HUD.get_node("InfoLabel").hide()
 	HUD.get_node("TitleText").show()
+	HUD.get_node("VariantSwitch").show()
 	HUD.get_node("BossHealthBar").hide()
 
 func _physics_process(_delta):
@@ -391,11 +392,6 @@ func _physics_process(_delta):
 			HUD.get_node("TitleText/TitleTextVar").set_text("M.A.D. MODE")
 		if Input.is_action_pressed("start"):
 			gameMode = "InfoScreen"
-		if Input.is_action_just_pressed("debug_switch_variant"):
-			variantMode = false if variantMode else true
-			buildDefaults()
-			if variantMode:
-				bonus_minimum = 0
 	if gameMode == "InfoScreen":
 		$GeneralTimer.doInfo()
 		gameMode = "InfoScreenWait"
@@ -427,3 +423,13 @@ func Report_Delta(_area):
 func Report_Alpha(_area):
 	HUD.get_node("AlphaLabel").text = "OUT"
 	Silos.get_node("SiloAlpha").frame = 10
+
+
+func VariantSwitch(button_pressed):
+	if button_pressed:
+		variantMode = true
+	else:
+		variantMode = false
+	buildDefaults()
+	if variantMode:
+		bonus_minimum = 0
