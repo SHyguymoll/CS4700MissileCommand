@@ -123,7 +123,6 @@ func doRoundStart():
 	yield(self, "timeout")
 	gameLogic.HUD.get_node("InfoLabel").hide()
 	gameLogic.HUD.get_node("DefendText").hide()
-	gameLogic.HUD.get_node("PlayerScore").show()
 	gameLogic.gameMode = "PlayStart"
 
 func levelEnd():
@@ -131,16 +130,30 @@ func levelEnd():
 	gameLogic.HUD.get_node("InfoLabel/InfoLabelData").text = "\n\n" + str(gameLogic.scoreTotal)
 	gameLogic.HUD.get_node("InfoLabel").show()
 	gameLogic.HUD.get_node("PlayerScore").hide()
+	var current_thing = 0
 	for silo in gameLogic.Silos.ammo:
-		gameLogic.score += 5 * round(float(gameLogic.levelNum)/2) * silo
-		gameLogic.HUD.get_node("InfoLabel/InfoLabelData").text = "\n\n" + str(gameLogic.scoreTotal + gameLogic.score)
-		start(0.1)
-		yield(self, "timeout")
+		for _ammo in range(silo):
+			gameLogic.score += 5 * round(float(gameLogic.levelNum)/2)
+			gameLogic.HUD.get_node("InfoLabel/InfoLabelData").text = "\n\n" + str(gameLogic.scoreTotal + gameLogic.score)
+			var newLabel = gameLogic.popupLabel.instance()
+			gameLogic.add_child(newLabel)
+			newLabel.value = 5 * round(float(gameLogic.levelNum)/2)
+			newLabel.given_pos = gameLogic.targetArray[current_thing + 6]
+			newLabel.state = "start"
+			start(0.1)
+			yield(self, "timeout")
+		current_thing += 1
+	current_thing = 0
 	for city in gameLogic.Cities.cities:
 		gameLogic.score += 50 * round(float(gameLogic.levelNum)/2) * int(city)
 		gameLogic.HUD.get_node("InfoLabel/InfoLabelData").text = "\n\n" + str(gameLogic.scoreTotal + gameLogic.score)
+		var newLabel = gameLogic.popupLabel.instance()
+		gameLogic.add_child(newLabel)
+		newLabel.value = 5 * round(float(gameLogic.levelNum)/2)
+		newLabel.given_pos = gameLogic.targetArray[current_thing]
 		start(0.2)
 		yield(self, "timeout")
+		current_thing += 1
 	gameLogic.scoreTotal += gameLogic.score
 	gameLogic.score = 0
 	if gameLogic.variantMode:

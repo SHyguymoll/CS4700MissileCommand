@@ -36,6 +36,7 @@ onready var enemyBomber := preload("res://scenes/Bomber.tscn")
 onready var targetPointer := preload("res://scenes/TargetGraphic.tscn")
 onready var missileTrail := preload("res://scenes/MissileTrail.tscn")
 onready var explosionScene := preload("res://scenes/Explosion.tscn")
+onready var popupLabel := preload("res://scenes/PopupLabel.tscn")
 
 onready var madBossFight := preload("res://scenes/MAD.tscn")
 
@@ -340,6 +341,7 @@ func doGame():
 	currentState += int(checkExplosionState())
 	currentState += int(checkMADState())
 	HUD.get_node("PlayerScore").text = str(scoreTotal + score)
+	HUD.get_node("PlayerScore").show()
 	if currentState == 0 and TimedVars.round_finished and TimedVars.boss_finished:
 		if checkForLife():
 			gameMode = "Results"
@@ -361,12 +363,12 @@ func buildDefaults() -> void:
 	levelNum = 1
 	levelColors = {"enemyAndHud": "dfff0000", "player": "df0022ff", "ground": "ffc600", "background": "000000"}
 	targetArray = [
+		Cities.get_node("L3").global_position,
+		Cities.get_node("L2").global_position,
 		Cities.get_node("L1").global_position,
-		Cities.get_node("L1").global_position,
-		Cities.get_node("L1").global_position,
-		Cities.get_node("L1").global_position,
-		Cities.get_node("L1").global_position,
-		Cities.get_node("L1").global_position,
+		Cities.get_node("R1").global_position,
+		Cities.get_node("R2").global_position,
+		Cities.get_node("R3").global_position,
 		Silos.get_node("SiloAlpha").global_position,
 		Silos.get_node("SiloDelta").global_position,
 		Silos.get_node("SiloOmega").global_position
