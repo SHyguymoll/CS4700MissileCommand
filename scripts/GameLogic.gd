@@ -143,7 +143,7 @@ func checkMADState(empty: bool = false) -> bool:
 			newMADDict.erase(mad)
 			mad.queue_free()
 			TimedVars.boss_finished = true
-		if mad.state == "Idle" and rand_range(0, max(-log(levelNum) + E_NATURAL, 0.01)) < 0.02 and mad.shoot_timer == 0:
+		if mad.state == "Idle" and rand_range(0, max(-log(levelNum) + E_NATURAL, 0.01)) < 0.02 and mad.shoot_timer < 1:
 			var chooseWeapon = rand_range(0, max(-log(levelNum) + E_NATURAL, 0.02))
 			if chooseWeapon > 0 and chooseWeapon < 0.015:
 				fireSmartBomb(0.1)
@@ -158,10 +158,10 @@ func checkMADState(empty: bool = false) -> bool:
 					missileDict
 				)
 			mad.shoot_timer = rand_range(1, max(12 * (-log(levelNum) + E_NATURAL), 4))
-		if mad.state == "Hit_1" and rand_range(0, max(-log(levelNum) + E_NATURAL, 0.01)) < 0.02 and mad.call_timer == 0:
+		if mad.state == "Hit_1" and rand_range(0, max(-log(levelNum) + E_NATURAL, 0.01)) < 0.02 and mad.call_timer < 1:
 			for _a in range(levelNum):
 				fireBomber(float(levelNum)/10, 100, 1 if rand_range(0,1) > 0.5 else -1, 1 if rand_range(0,1) > 0.5 else 0)
-			mad.call_timer =  rand_range(1, 25*(-log(levelNum) + E_NATURAL))
+			mad.call_timer = rand_range(1, 25*(-log(levelNum) + E_NATURAL))
 	madDict = newMADDict.duplicate()
 	if madDict.size() == 0:
 		return false
@@ -280,6 +280,13 @@ func doResultsScreen():
 	TimedVars.levelEnd()
 	gameMode = "ResultsWait"
 
+func doEndScreen():
+	HUD.get_node("InfoLabel").text = "FINAL SCORE:"
+	HUD.get_node("InfoLabel/InfoLabelData").text = "\n\n" + str(scoreTotal + score)
+	TimedVars.gameEnd()
+	HUD.get_node("InfoLabel").show()
+	gameMode = "GameOverWait"
+
 func updateSiloCounts():
 	HUD.get_node("AlphaLabel").text = ""
 	HUD.get_node("DeltaLabel").text = ""
@@ -362,6 +369,10 @@ func buildDefaults() -> void:
 	stored_cities = 0
 	levelNum = 1
 	levelColors = {"enemyAndHud": "dfff0000", "player": "df0022ff", "ground": "ffc600", "background": "000000"}
+	Cities.cities = [true, true, true, true, true, true]
+	Silos.ammo = [10,10,10]
+	Silos.ammoReloadTimer = [0.0,0.0,0.0]
+	Silos.baseState = ["Ready","Ready","Ready"]
 	targetArray = [
 		Cities.get_node("L3").global_position,
 		Cities.get_node("L2").global_position,
@@ -375,9 +386,6 @@ func buildDefaults() -> void:
 	]
 
 func _ready():
-#	readHighScoreTable()
-	#HUD.get_node("HighScore").text = String(highscoreTable[highscoreTable.keys()[0]])
-	
 	buildDefaults()
 	
 	HUD.get_node("PlayerScore").hide()
@@ -386,6 +394,7 @@ func _ready():
 	HUD.get_node("TitleText").show()
 	HUD.get_node("VariantSwitch").show()
 	HUD.get_node("BossHealthBar").hide()
+	HUD.get_node("VariantBonus").hide()
 
 func _physics_process(_delta):
 	if gameMode == "Menu":
@@ -408,7 +417,8 @@ func _physics_process(_delta):
 	if gameMode == "Results":
 		doResultsScreen()
 	if gameMode == "GameOver":
-		print("game has ended.")
+		doEndScreen()
+	if gameMode == "Reset":
 		if get_tree().reload_current_scene():
 			push_error("scene failed to reload")
 
@@ -430,8 +440,8 @@ func Report_Alpha(_area):
 func VariantSwitch(button_pressed):
 	if button_pressed:
 		variantMode = true
+		bonus_minimum = 0
 	else:
 		variantMode = false
+		bonus_minimum = 5000
 	buildDefaults()
-	if variantMode:
-		bonus_minimum = 0

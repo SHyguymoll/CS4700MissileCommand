@@ -37,7 +37,11 @@ func _physics_process(_delta):
 			if position.y > 34:
 				state = "Idle"
 				gameLogic = $"../"
-				
+		"Exit":
+			position.y -= 0.6
+			if position.y < -4:
+				ready_to_boom = true
+				gameLogic.HUD.get_node("BossHealthBar").hide()
 		"Idle":
 			set_modulate(Color(1, 1, 1, 1))
 			move()
@@ -45,6 +49,8 @@ func _physics_process(_delta):
 				shoot_timer -= 1
 			if call_timer > 0:
 				call_timer -= 1
+			if !gameLogic.checkForLife():
+				state = "Exit"
 		"Hit_0":
 			position.y = lerp(position.y, 10, 0.3)
 			set_modulate(Color(rand_range(0+REDUCE_SEIZURES,1-REDUCE_SEIZURES),rand_range(0+REDUCE_SEIZURES,1-REDUCE_SEIZURES),rand_range(0+REDUCE_SEIZURES,1-REDUCE_SEIZURES), 1))

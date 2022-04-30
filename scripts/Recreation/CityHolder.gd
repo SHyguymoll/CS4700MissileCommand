@@ -1,6 +1,6 @@
 extends Node2D
 
-export var cities = [true, true, true, true, true, true]
+var cities = [true, true, true, true, true, true]
 
 func _process(_delta):
 	if cities[0] == false:
