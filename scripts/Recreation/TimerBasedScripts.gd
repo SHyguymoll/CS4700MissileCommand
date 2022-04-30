@@ -62,32 +62,59 @@ func doLevel(waitTime: float = 1.0, normal: int = 0, split: int = 0, smart: int 
 	firing_finished = true
 
 func doInfo():
-	gameLogic.HUD.get_node("InfoLabel").text = (
-		"CURSOR: ARROW KEYS\n" +
-		"CAN'T FIRE AT YOURSELF\n" +
-		"SOME MISSILES SPLIT\n" +
-		"HARDER EVERY LEVEL\n" +
-		"GOOD LUCK"
-	)
-	if gameLogic.variantMode:
+	
+	
+	if gameLogic.Player.mode == 0:
 		gameLogic.HUD.get_node("InfoLabel").text = (
 			"CURSOR: ARROW KEYS\n" +
 			"CAN'T FIRE AT YOURSELF\n" +
-			"ONLY ONE TARGET\n" +
+			"SOME MISSILES SPLIT\n" +
 			"HARDER EVERY LEVEL\n" +
-			"RELOAD WITH SECOND KEY"
+			"GOOD LUCK"
 		)
+		if gameLogic.variantMode:
+			gameLogic.HUD.get_node("InfoLabel").text = (
+				"CURSOR: ARROW KEYS\n" +
+				"CAN'T FIRE AT YOURSELF\n" +
+				"ONLY ONE TARGET\n" +
+				"HARDER EVERY LEVEL\n" +
+				"RELOAD WITH SECOND KEY"
+			)
+		
+		gameLogic.HUD.get_node("AlphaLabel").text = "A"
+		gameLogic.HUD.get_node("DeltaLabel").text = "S"
+		gameLogic.HUD.get_node("OmegaLabel").text = "D"
+		if gameLogic.variantMode:
+			gameLogic.HUD.get_node("AlphaLabel").text = "A, Q"
+			gameLogic.HUD.get_node("DeltaLabel").text = "S, W"
+			gameLogic.HUD.get_node("OmegaLabel").text = "D, E"
+	else:
+		gameLogic.HUD.get_node("InfoLabel").text = (
+			"CURSOR: MOUSE\n" +
+			"CAN'T FIRE AT YOURSELF\n" +
+			"SOME MISSILES SPLIT\n" +
+			"HARDER EVERY LEVEL\n" +
+			"GOOD LUCK"
+		)
+		if gameLogic.variantMode:
+			gameLogic.HUD.get_node("InfoLabel").text = (
+				"CURSOR: MOUSE\n" +
+				"CAN'T FIRE AT YOURSELF\n" +
+				"ONLY ONE TARGET\n" +
+				"HARDER EVERY LEVEL\n" +
+				"RELOAD WITH SECOND KEY"
+			)
+		
+		gameLogic.HUD.get_node("AlphaLabel").text = "LEFT"
+		gameLogic.HUD.get_node("DeltaLabel").text = "MIDDLE"
+		gameLogic.HUD.get_node("OmegaLabel").text = "RIGHT"
+		if gameLogic.variantMode:
+			gameLogic.HUD.get_node("AlphaLabel").text = "LT, Q"
+			gameLogic.HUD.get_node("DeltaLabel").text = "MD, W"
+			gameLogic.HUD.get_node("OmegaLabel").text = "RT, E"
 	gameLogic.HUD.get_node("InfoLabel").show()
 	gameLogic.HUD.get_node("InfoLabel/InfoLabelData").hide()
 	gameLogic.HUD.get_node("CoinLabel").hide()
-	
-	gameLogic.HUD.get_node("AlphaLabel").text = "A"
-	gameLogic.HUD.get_node("DeltaLabel").text = "S"
-	gameLogic.HUD.get_node("OmegaLabel").text = "D"
-	if gameLogic.variantMode:
-		gameLogic.HUD.get_node("AlphaLabel").text = "A, Q"
-		gameLogic.HUD.get_node("DeltaLabel").text = "S, W"
-		gameLogic.HUD.get_node("OmegaLabel").text = "D, E"
 	
 	gameLogic.HUD.get_node("AlphaLabel").show()
 	gameLogic.HUD.get_node("DeltaLabel").show()

@@ -103,6 +103,9 @@ custom_colors/font_color = Color( 0, 0.109804, 1, 1 )
 custom_fonts/font = ExtResource( 2 )
 text = "BONUS CITY INCOMING"
 align = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="CoinLabel" type="Label" parent="HUDAndTitleScreen"]
 anchor_left = 0.5
@@ -116,6 +119,9 @@ custom_colors/font_color = Color( 0, 0, 0, 1 )
 custom_fonts/font = ExtResource( 2 )
 text = "PUSH ENTER TO PLAY"
 align = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="AlphaLabel" type="Label" parent="HUDAndTitleScreen"]
 anchor_top = 1.0
@@ -172,6 +178,9 @@ custom_colors/font_color = Color( 0, 0.109804, 1, 1 )
 custom_fonts/font = ExtResource( 2 )
 text = "FINAL SCORE"
 align = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="InfoLabelData" type="Label" parent="HUDAndTitleScreen/InfoLabel"]
 anchor_left = 0.5
@@ -191,6 +200,7 @@ text = "        1
 1         "
 align = 1
 __meta__ = {
+"_edit_lock_": true,
 "_edit_use_anchors_": true
 }
 
@@ -208,6 +218,9 @@ custom_fonts/font = SubResource( 3 )
 text = "MISSILE
 COMMAND"
 align = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="TitleTextVar" type="Label" parent="HUDAndTitleScreen/TitleText"]
 anchor_left = 0.5
@@ -222,6 +235,9 @@ custom_colors/font_color = Color( 1, 0, 0, 0.87451 )
 custom_fonts/font = SubResource( 4 )
 text = "M.A.D. MODE"
 align = 1
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="BossHealthBar" type="ProgressBar" parent="HUDAndTitleScreen"]
 anchor_right = 1.0
@@ -234,6 +250,9 @@ custom_styles/fg = SubResource( 7 )
 custom_styles/bg = SubResource( 8 )
 step = 1.0
 percent_visible = false
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="VariantSwitch" type="TextureButton" parent="HUDAndTitleScreen"]
 anchor_left = 0.5
@@ -244,6 +263,9 @@ margin_bottom = 20.0
 toggle_mode = true
 texture_normal = ExtResource( 14 )
 texture_pressed = ExtResource( 15 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="ControlSwitch" type="TextureButton" parent="HUDAndTitleScreen"]
 anchor_left = 0.5
@@ -254,6 +276,9 @@ margin_bottom = 20.0
 toggle_mode = true
 texture_normal = ExtResource( 18 )
 texture_pressed = ExtResource( 19 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="GeneralTimer" type="Timer" parent="."]
 one_shot = true
