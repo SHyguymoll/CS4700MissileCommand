@@ -21,7 +21,6 @@ func _process(_delta):
 		speed = float(gameLogic.levelNum)/SPEED_CRUNCH
 		if gameLogic.variantMode:
 			gameLogic.fireMAD()
-			
 			boss_finished = false
 			round_finished = true
 		else:
@@ -97,6 +96,7 @@ func doInfo():
 	gameLogic.HUD.get_node("HighScore").hide()
 	gameLogic.HUD.get_node("TitleText").hide()
 	gameLogic.HUD.get_node("VariantSwitch").hide()
+	gameLogic.HUD.get_node("ControlSwitch").hide()
 	start(3)
 	yield(self, "timeout")
 	gameLogic.gameMode = "InfoStart"

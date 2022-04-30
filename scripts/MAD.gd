@@ -36,15 +36,21 @@ func _physics_process(_delta):
 			position.y += 0.6
 			if position.y > 34:
 				state = "Idle"
+				position.y = 34
 				gameLogic = $"../"
 		"Exit":
+			gameLogic.HUD.get_node("BossHealthBar").hide()
 			position.y -= 0.6
 			if position.y < -4:
 				ready_to_boom = true
-				gameLogic.HUD.get_node("BossHealthBar").hide()
 		"Idle":
+			gameLogic.HUD.get_node("BossHealthBar").show()
 			set_modulate(Color(1, 1, 1, 1))
 			move()
+			$IdleSound.volume_db = -5.0 + (position.y - 34.0)/10.0
+			$IdleSound.pitch_scale = max(health_start-health, 0.1)/health_start
+			if !$IdleSound.playing:
+				$IdleSound.play()
 			if shoot_timer > 0:
 				shoot_timer -= 1
 			if call_timer > 0:

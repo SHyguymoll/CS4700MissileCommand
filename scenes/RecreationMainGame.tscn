@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=2]
+[gd_scene load_steps=28 format=2]
 
 [ext_resource path="res://scripts/GameLogic.gd" type="Script" id=1]
 [ext_resource path="res://fonts/Font.tres" type="DynamicFont" id=2]
@@ -15,6 +15,10 @@
 [ext_resource path="res://sound/Launch.wav" type="AudioStream" id=13]
 [ext_resource path="res://art/button.png" type="Texture" id=14]
 [ext_resource path="res://art/button_pressed.png" type="Texture" id=15]
+[ext_resource path="res://sound/Empty.wav" type="AudioStream" id=16]
+[ext_resource path="res://sound/Low.wav" type="AudioStream" id=17]
+[ext_resource path="res://art/keybutton.png" type="Texture" id=18]
+[ext_resource path="res://art/keybutton_pressed.png" type="Texture" id=19]
 
 [sub_resource type="DynamicFont" id=3]
 size = 32
@@ -163,6 +167,7 @@ margin_left = -123.904
 margin_top = -20.412
 margin_right = 132.096
 margin_bottom = 20.588
+grow_vertical = 0
 custom_colors/font_color = Color( 0, 0.109804, 1, 1 )
 custom_fonts/font = ExtResource( 2 )
 text = "FINAL SCORE"
@@ -177,6 +182,7 @@ margin_left = -40.0
 margin_top = -20.5
 margin_right = 40.0
 margin_bottom = 20.5
+grow_vertical = 0
 custom_colors/font_color = Color( 1, 0, 0, 0.87451 )
 custom_fonts/font = ExtResource( 2 )
 text = "        1
@@ -238,6 +244,16 @@ margin_bottom = 20.0
 toggle_mode = true
 texture_normal = ExtResource( 14 )
 texture_pressed = ExtResource( 15 )
+
+[node name="ControlSwitch" type="TextureButton" parent="HUDAndTitleScreen"]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = 108.0
+margin_right = 128.0
+margin_bottom = 20.0
+toggle_mode = true
+texture_normal = ExtResource( 18 )
+texture_pressed = ExtResource( 19 )
 
 [node name="GeneralTimer" type="Timer" parent="."]
 one_shot = true
@@ -385,9 +401,17 @@ position = Vector2( 10.5, 7 )
 [node name="CollisionShape2D" type="CollisionShape2D" parent="EarthHolder/SiloHolder/SiloAlpha/Collisions"]
 shape = SubResource( 2 )
 
-[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="EarthHolder/SiloHolder/SiloAlpha"]
+[node name="Fire" type="AudioStreamPlayer2D" parent="EarthHolder/SiloHolder/SiloAlpha"]
 position = Vector2( 11, 7 )
 stream = ExtResource( 13 )
+
+[node name="Low" type="AudioStreamPlayer2D" parent="EarthHolder/SiloHolder/SiloAlpha"]
+position = Vector2( 11, 7 )
+stream = ExtResource( 17 )
+
+[node name="Empty" type="AudioStreamPlayer2D" parent="EarthHolder/SiloHolder/SiloAlpha"]
+position = Vector2( 11, 7 )
+stream = ExtResource( 16 )
 
 [node name="ProgressBar" type="ProgressBar" parent="EarthHolder/SiloHolder/SiloAlpha"]
 anchor_left = -0.347167
@@ -424,9 +448,17 @@ position = Vector2( 10.5, 7 )
 [node name="CollisionShape2D" type="CollisionShape2D" parent="EarthHolder/SiloHolder/SiloDelta/Collisions"]
 shape = SubResource( 2 )
 
-[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="EarthHolder/SiloHolder/SiloDelta"]
+[node name="Fire" type="AudioStreamPlayer2D" parent="EarthHolder/SiloHolder/SiloDelta"]
 position = Vector2( 11, 7 )
 stream = ExtResource( 13 )
+
+[node name="Low" type="AudioStreamPlayer2D" parent="EarthHolder/SiloHolder/SiloDelta"]
+position = Vector2( 11, 7 )
+stream = ExtResource( 17 )
+
+[node name="Empty" type="AudioStreamPlayer2D" parent="EarthHolder/SiloHolder/SiloDelta"]
+position = Vector2( 11, 7 )
+stream = ExtResource( 16 )
 
 [node name="ProgressBar" type="ProgressBar" parent="EarthHolder/SiloHolder/SiloDelta"]
 anchor_left = -0.347167
@@ -463,9 +495,17 @@ position = Vector2( 10.5, 7 )
 [node name="CollisionShape2D" type="CollisionShape2D" parent="EarthHolder/SiloHolder/SiloOmega/Collisions"]
 shape = SubResource( 2 )
 
-[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="EarthHolder/SiloHolder/SiloOmega"]
+[node name="Fire" type="AudioStreamPlayer2D" parent="EarthHolder/SiloHolder/SiloOmega"]
 position = Vector2( 11, 7 )
 stream = ExtResource( 13 )
+
+[node name="Low" type="AudioStreamPlayer2D" parent="EarthHolder/SiloHolder/SiloOmega"]
+position = Vector2( 11, 7 )
+stream = ExtResource( 17 )
+
+[node name="Empty" type="AudioStreamPlayer2D" parent="EarthHolder/SiloHolder/SiloOmega"]
+position = Vector2( 11, 7 )
+stream = ExtResource( 16 )
 
 [node name="ProgressBar" type="ProgressBar" parent="EarthHolder/SiloHolder/SiloOmega"]
 anchor_left = -0.347167
@@ -495,6 +535,7 @@ texture = ExtResource( 3 )
 script = ExtResource( 4 )
 
 [connection signal="toggled" from="HUDAndTitleScreen/VariantSwitch" to="." method="VariantSwitch"]
+[connection signal="toggled" from="HUDAndTitleScreen/ControlSwitch" to="." method="ControlSwitch"]
 [connection signal="area_entered" from="EarthHolder/CityHolder/L3/Collisions" to="EarthHolder/CityHolder" method="L3_breached"]
 [connection signal="area_entered" from="EarthHolder/CityHolder/L2/Collisions" to="EarthHolder/CityHolder" method="L2_breached"]
 [connection signal="area_entered" from="EarthHolder/CityHolder/L1/Collisions" to="EarthHolder/CityHolder" method="L1_breached"]

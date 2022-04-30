@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/missile_one.png-7f7a3b3bd4acb7420611cd4f4365bf72.stex"
+path="res://.import/keybutton_pressed.png-c30a5d6c433a816c06ede5c1e8e84158.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/missile_one.png"
-dest_files=[ "res://.import/missile_one.png-7f7a3b3bd4acb7420611cd4f4365bf72.stex" ]
+source_file="res://art/keybutton_pressed.png"
+dest_files=[ "res://.import/keybutton_pressed.png-c30a5d6c433a816c06ede5c1e8e84158.stex" ]
 
 [params]
 

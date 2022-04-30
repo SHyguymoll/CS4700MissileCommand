@@ -123,12 +123,11 @@ func checkBomberState(empty: bool = false) -> bool:
 					score += 25*round(float(levelNum)/2)
 				else:
 					explosion(bomber.global_position)
-				
 			newBomberDict.erase(bomber)
 			bomber.queue_free()
 		if bomber.deploy_timer == 0:
 			fireEnemy($GeneralTimer.speed, -1, bomber.position, missileDict)
-			bomber.deploy_timer = -1
+			bomber.deploy_timer = int(rand_range(60,140))
 	bomberDict = newBomberDict.duplicate()
 	if bomberDict.size() == 0:
 		return false
@@ -144,6 +143,7 @@ func checkMADState(empty: bool = false) -> bool:
 			mad.queue_free()
 			TimedVars.boss_finished = true
 		if mad.state == "Idle" and rand_range(0, max(-log(levelNum) + E_NATURAL, 0.01)) < 0.02 and mad.shoot_timer < 1:
+			mad.get_node("FireWeapon").play()
 			var chooseWeapon = rand_range(0, max(-log(levelNum) + E_NATURAL, 0.02))
 			if chooseWeapon > 0 and chooseWeapon < 0.015:
 				fireSmartBomb(0.1)
@@ -257,7 +257,6 @@ func fireMAD():
 	newMad.health_start = float(levelNum)
 	HUD.get_node("BossHealthBar").max_value = float(levelNum)
 	HUD.get_node("BossHealthBar").value = float(levelNum)
-	HUD.get_node("BossHealthBar").show()
 	newMad.position = Vector2((SCREEN_WIDTH/2)-11, -30)
 	newMad.state = "Intro"
 	madDict[newMad] = newMad.position
@@ -311,21 +310,39 @@ func updateSiloCounts():
 			HUD.get_node("OmegaLabel").text = "REL"
 
 func doGame():
-	if Input.is_action_just_pressed("fire_alpha") and Silos.ammo[0] > 0 and Silos.baseState[0] == "Ready":
-		Silos.ammo[0] -= 1
-		Silos.get_node("SiloAlpha").frame = 10 - Silos.ammo[0]
-		fire(0)
-		Silos.get_node("SiloAlpha/AudioStreamPlayer2D").play()
-	if Input.is_action_just_pressed("fire_delta") and Silos.ammo[1] > 0 and Silos.baseState[1] == "Ready":
-		Silos.ammo[1] -= 1
-		Silos.get_node("SiloDelta").frame = 10 - Silos.ammo[1]
-		fire(1)
-		Silos.get_node("SiloDelta/AudioStreamPlayer2D").play()
-	if Input.is_action_just_pressed("fire_omega") and Silos.ammo[2] > 0 and Silos.baseState[2] == "Ready":
-		Silos.ammo[2] -= 1
-		Silos.get_node("SiloOmega").frame = 10 - Silos.ammo[2]
-		fire(2)
-		Silos.get_node("SiloOmega/AudioStreamPlayer2D").play()
+	if Input.is_action_just_pressed("fire_alpha"):
+		if Silos.ammo[0] > 0 and Silos.baseState[0] == "Ready":
+			Silos.ammo[0] -= 1
+			Silos.get_node("SiloAlpha").frame = 10 - Silos.ammo[0]
+			fire(0)
+			if Silos.ammo[0] == 3:
+				Silos.get_node("SiloAlpha/Low").play()
+			else:
+				Silos.get_node("SiloAlpha/Fire").play()
+		elif Silos.ammo[1] == 0:
+			Silos.get_node("SiloAlpha/Empty").play()
+	if Input.is_action_just_pressed("fire_delta"):
+		if Silos.ammo[1] > 0 and Silos.baseState[1] == "Ready":
+			Silos.ammo[1] -= 1
+			Silos.get_node("SiloDelta").frame = 10 - Silos.ammo[1]
+			fire(1)
+			if Silos.ammo[1] == 3:
+				Silos.get_node("SiloDelta/Low").play()
+			else:
+				Silos.get_node("SiloDelta/Fire").play()
+		elif Silos.ammo[1] == 0:
+			Silos.get_node("SiloDelta/Empty").play()
+	if Input.is_action_just_pressed("fire_omega"):
+		if Silos.ammo[2] > 0 and Silos.baseState[2] == "Ready":
+			Silos.ammo[2] -= 1
+			Silos.get_node("SiloOmega").frame = 10 - Silos.ammo[2]
+			fire(2)
+			if Silos.ammo[2] == 3:
+				Silos.get_node("SiloOmega/Low").play()
+			else:
+				Silos.get_node("SiloOmega/Fire").play()
+		elif Silos.ammo[2] == 0:
+			Silos.get_node("SiloOmega/Empty").play()
 	if variantMode:
 		if Input.is_action_pressed("reload_alpha"):
 			Silos.reload(0, checkForLife())
@@ -393,6 +410,7 @@ func _ready():
 	HUD.get_node("InfoLabel").hide()
 	HUD.get_node("TitleText").show()
 	HUD.get_node("VariantSwitch").show()
+	HUD.get_node("ControlSwitch").show()
 	HUD.get_node("BossHealthBar").hide()
 	HUD.get_node("VariantBonus").hide()
 
@@ -444,4 +462,12 @@ func VariantSwitch(button_pressed):
 	else:
 		variantMode = false
 		bonus_minimum = 5000
+	buildDefaults()
+
+
+func ControlSwitch(button_pressed):
+	if button_pressed:
+		Player.mode = 1
+	else:
+		Player.mode = 0
 	buildDefaults()
